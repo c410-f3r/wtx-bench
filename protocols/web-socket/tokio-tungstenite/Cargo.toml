@@ -1,0 +1,10 @@
+[dependencies]
+futures-util = { default-features = false, version = "0.3" }
+tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
+tokio-tungstenite = { default-features = false, features = ["connect", "handshake"], version = "0.21" }
+
+[package]
+edition = "2021"
+name = "tokio-tungstenite"
+publish = false
+version = "0.0.0"

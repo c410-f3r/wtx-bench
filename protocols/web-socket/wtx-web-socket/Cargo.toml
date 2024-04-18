@@ -1,0 +1,9 @@
+[dependencies]
+tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
+wtx = { branch = "http2", default-features = false, features = ["async-send", "optimization", "pool", "tokio", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
+
+[package]
+edition = "2021"
+name = "wtx-web-socket"
+publish = false
+version = "0.0.0"

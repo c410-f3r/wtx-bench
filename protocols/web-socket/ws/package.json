@@ -1,0 +1,8 @@
+{
+	"devDependencies": {
+        "ws": "^8.16.0"
+	},
+	"name": "ws",
+    "type": "module",
+	"version": "0.0.0"
+}
