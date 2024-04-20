@@ -1,3 +1,3 @@
-export type firstPlacesChart = Map<string, number>;
+export type firstPlacesChart = Map<string, [string, number]>;
 
-export type manyDaysChart = [string, number[]][];
+export type manyDatesChart = [string, string, number[]][];

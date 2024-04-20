@@ -11,10 +11,13 @@ mod web_socket;
 
 use crate::{language::Language, protocol::Protocol, report_line::ReportLine};
 use bench_stats::BenchStats;
-use flate2::{bufread::GzEncoder, Compression};
+use flate2::{
+    bufread::{GzDecoder, GzEncoder},
+    Compression,
+};
 use std::{
     io::Read,
-    net::{Ipv4Addr, SocketAddrV4},
+    net::{Ipv4Addr, SocketAddrV4, ToSocketAddrs},
     path::{Path, PathBuf},
     time::Duration,
 };
@@ -24,10 +27,15 @@ use tokio::{
     process::Command,
     time::sleep,
 };
-use wtx::misc::{ArrayString, FnMutFut, GenericTime};
+use wtx::{
+    http::{Headers, Method, Request},
+    http2::{ConnectParams, Http2Buffer, Http2Tokio, ReqResBuffer},
+    misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
+    rng::StaticRng,
+};
 
+const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 const CSV_HEADER: &str = "environment,protocol,test,implementation,timestamp,min,max,mean,sd\n";
-const ONE_WEEK: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 const SOCKET_ADDR: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 9000);
 const SOCKET_STR: &str = "127.0.0.1:9000";
 
@@ -35,19 +43,26 @@ const SOCKET_STR: &str = "127.0.0.1:9000";
 async fn main() {
     let environment = std::env::args()
         .nth(1)
-        .unwrap()
+        .unwrap_or_else(|| String::from("Teste"))
         .as_str()
         .try_into()
         .unwrap();
     let timestamp = timestamp();
     let mut rps = Vec::new();
-    manage_prev_csv(timestamp, &mut rps);
+    manage_prev_csv(timestamp, &mut rps).await;
     let mut root_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
         .to_owned();
     manage_protocols_dir(&root_dir, environment, &mut rps, timestamp).await;
     write_csv(&mut root_dir, &mut rps).await;
+}
+
+fn decode_report(bytes: &[u8]) -> String {
+    let mut gz = GzDecoder::new(bytes);
+    let mut buffer = String::new();
+    gz.read_to_string(&mut buffer).unwrap();
+    buffer
 }
 
 fn encode_report(bytes: &[u8]) -> Vec<u8> {
@@ -67,10 +82,36 @@ async fn handle_cmd_output(cmd: &mut Command) {
     }
 }
 
-fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
-    // https://c410-f3r.github.io/wtx-bench/reports.csv.gzip
-    let csv = "";
-    let lower_bound = Duration::from_millis(curr_timestamp) - ONE_WEEK;
+async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
+    let csv = {
+        let cp = ConnectParams::default();
+        let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
+        let mut http2 = Http2Tokio::connect(
+            cp,
+            Http2Buffer::builder(StaticRng::default()).build(),
+            TokioRustlsConnector::from_webpki_roots()
+                .http2()
+                .with_tcp_stream(
+                    uri.host().to_socket_addrs().unwrap().next().unwrap(),
+                    uri.hostname(),
+                )
+                .await
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+        let mut rrb = ReqResBuffer::with_capacity();
+        let mut stream = http2.stream().await.unwrap();
+        let res = stream
+            .send_req_recv_res(
+                Request::http2(&[], &Headers::new(4096), Method::Get, uri.to_ref()),
+                &mut rrb,
+            )
+            .await
+            .unwrap();
+        decode_report(res.unwrap().body())
+    };
+    let lower_bound = Duration::from_millis(curr_timestamp) - _30_DAYS;
     for line in csv.split('\n').skip(1) {
         if line.is_empty() {
             continue;

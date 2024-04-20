@@ -1,6 +1,6 @@
 macro_rules! connections {
     () => {
-        256
+        128
     };
 }
 

@@ -1,7 +1,7 @@
 [dependencies]
 flate2 = { default-features = false, features = ["rust_backend"], version = "1.0" }
 tokio = { default-features = false, features = ["fs", "io-std", "macros", "process", "rt-multi-thread"], version = "1.0" }
-wtx = { branch = "http2", default-features = false, features = ["optimization", "pool", "tokio", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
+wtx = { branch = "http2", default-features = false, features = ["http2", "optimization", "pool", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
 
 [package]
 edition = "2021"

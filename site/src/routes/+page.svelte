@@ -1,30 +1,46 @@
 <script lang="ts">
-  import Header from './Header.svelte';
-  import ManyDaysChart from './ManyDaysChart.svelte';
+  import { dateAndTime } from '$lib/Utils';
+  import Csv from '$lib/Csv';
   import FirstPlacesChart from './FirstPlacesChart.svelte';
-  import { short8601String } from '$lib/Utils';
+  import Header from './Header.svelte';
+  import ManyDatesChart from './ManyDatesChart.svelte';
 
-  let { data }: any = $props();
+  let { data }: { data: { csv: Csv } } = $props();
 
-  let days: number | undefined = $state(7);
-  let environment: string = $state('fooo');
+  let environment: string = $state(data.csv.results.keys().next().value);
   let implementation: string = $state('');
-  let protocol: string = $state('web-socket');
-  let test: string = $state('64 text messages of 2MiB composed by 64 frames');
+  let lastDays: number = $state(1);
+  let protocol: string = $state('');
+  let test: string = $state('');
 
-  let daysDates = $derived.by(() => {
-    if (days === undefined) {
-      return [];
-    }
-    let array = Array.from({ length: days }, (_, idx) => {
-      let fromDate = new Date();
-      fromDate.setDate(fromDate.getDate() - idx);
-      return short8601String(fromDate);
-    });
-    return array.reverse();
-  });
   let chartsData = $derived.by(() => {
-    return data.csv.chartsData(environment, daysDates, protocol, implementation, test);
+    return data.csv.chartsData(environment, dates, protocol, implementation, test);
+  });
+  let dates = $derived.by(() => {
+    return [...data.csv.allDates(environment)].reverse();
+  });
+  let datesStrings = $derived.by(() => {
+    return dates.map((date) => dateAndTime(new Date(date)));
+  });
+  let firstPlacesTitle = $derived.by(() => {
+    if (implementation === '' && test === '') {
+      return 'First places (All tests)';
+    } else {
+      return 'First places';
+    }
+  });
+  let maxDays = $derived(data.csv.oldestDayCountFromEnvironment(environment));
+  let scoresTitle = $derived.by(() => {
+    if (implementation === '' && test === '') {
+      return 'Scores (Geometric mean of all tests)';
+    } else {
+      return 'Scores';
+    }
+  });
+
+  $effect(() => {
+    lastDays = Math.min(data.csv.oldestDayCountFromEnvironment(environment), 7);
+    protocol = data.csv.results.get(environment)!.values().next().value.keys().next().value;
   });
 </script>
 
@@ -36,21 +52,45 @@
   />
 </svelte:head>
 
-<Header csv={data.csv} bind:days bind:environment bind:implementation bind:protocol bind:test />
+<Header
+  csv={data.csv}
+  {dates}
+  bind:environment
+  bind:implementation
+  bind:lastDays
+  {maxDays}
+  bind:protocol
+  bind:test
+/>
 
-<main class="p-3 mt-5">
+<main class="my-5 p-3">
   <div class="columns is-variable">
     {#if chartsData[0] !== undefined}
       <div class="column is-4">
-        <h5 class="title is-5">First places</h5>
+        <h5 class="title is-5">{firstPlacesTitle}</h5>
         <FirstPlacesChart dataset={chartsData[0]} />
       </div>
     {/if}
-    {#if chartsData[1] !== undefined}
-      <div class="column">
-        <h5 class="title is-5">Scores</h5>
-        <ManyDaysChart dataset={chartsData[1]} labels={daysDates} />
-      </div>
-    {/if}
+    <div class="column">
+      <h5 class="title is-5">{scoresTitle}</h5>
+      <ManyDatesChart dataset={chartsData[1]} labels={datesStrings} />
+    </div>
   </div>
 </main>
+
+<footer class="footer has-text-centered">
+  <h6 class="is-size-6 mb-2">
+    <strong>Contribute</strong> on GitHub
+  </h6>
+
+  <div>
+    <iframe
+      frameborder="0"
+      height="30px"
+      title="wtx-bench"
+      scrolling="0"
+      src="https://ghbtns.com/github-btn.html?user=c410-f3r&repo=wtx-bench&type=star&count=true&size=large"
+      width="120px"
+    ></iframe>
+  </div>
+</footer>

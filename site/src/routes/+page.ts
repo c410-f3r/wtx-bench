@@ -1,10 +1,12 @@
 import Csv from '$lib/Csv';
-import report from '$lib/report.csv.gzip';
 import type { PageLoad } from './$types';
+import { base } from '$app/paths';
 
 export const load: PageLoad = async ({ fetch }) => {
-  const response = await fetch(report);
-  return { csv: new Csv(await decompress_gzip(response)) };
+  const response = await fetch(`${base}/report.csv.gzip`);
+  return {
+    csv: new Csv(await decompress_gzip(response))
+  };
 };
 
 const decompress_gzip = async (response: Response) => {

@@ -1,9 +1,0 @@
-[dependencies]
-tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
-ws-tool = { default-features = false, features = ["async"], version = "0.11" }
-
-[package]
-edition = "2021"
-name = "ws-tool"
-publish = false
-version = "0.0.0"

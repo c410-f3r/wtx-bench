@@ -8,7 +8,7 @@ pub(crate) struct ReportLine {
     pub(crate) environment: ArrayString<32>,
     pub(crate) implementation: ArrayString<24>,
     pub(crate) protocol: Protocol,
-    pub(crate) test: ArrayString<64>,
+    pub(crate) test: ArrayString<96>,
     pub(crate) timestamp: u64,
 }
 

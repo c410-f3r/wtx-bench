@@ -1,6 +1,5 @@
 <script lang="ts">
   import Chart from 'chart.js/auto';
-  import { randomColor } from '$lib/Utils';
   import type { firstPlacesChart } from '$lib/types';
 
   let { dataset }: { dataset: firstPlacesChart } = $props();
@@ -10,9 +9,9 @@
   $effect(() => {
     const datasets = () => [
       {
-        backgroundColor: [...dataset.values()].map(() => randomColor()),
+        backgroundColor: Array.from(dataset.values()).map((elem) => elem[0]),
         borderWidth: 0,
-        data: [...dataset.values()]
+        data: Array.from(dataset.values()).map((elem) => elem[1])
       }
     ];
     const labels = () => [...dataset.keys()];
@@ -23,8 +22,8 @@
       return;
     }
     chart = new Chart('firstPlacesChart', {
-      type: 'pie',
-      data: { datasets: datasets(), labels: labels() }
+      data: { datasets: datasets(), labels: labels() },
+      type: 'pie'
     });
   });
 </script>

@@ -21,11 +21,11 @@ macro_rules! name {
             connections!(),
             " connection(s) sending ",
             $msgs,
-            "text message(s) of ",
+            " text message(s) of ",
             $msg_size,
-            "composed by",
+            " composed by ",
             $frames,
-            "frame(s)"
+            " frame(s)"
         )
     };
 }

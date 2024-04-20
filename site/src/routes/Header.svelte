@@ -1,12 +1,39 @@
 <script lang="ts">
   let {
     csv,
-    days = $bindable(),
+    dates,
     environment = $bindable(),
     implementation = $bindable(),
+    lastDays = $bindable(),
+    maxDays,
     protocol = $bindable(),
     test = $bindable()
   }: any = $props();
+
+  let [protocols, implementations, tests] = $derived.by(() => {
+    let implementations = new Set();
+    let protocols = new Set();
+    let tests = new Set();
+
+    for (const [localDate, localProtocols] of csv.results.get(environment)!) {
+      if (!dates.includes(localDate)) {
+        continue;
+      }
+      for (const [localProtocol, _] of localProtocols) {
+        protocols.add(localProtocol);
+      }
+      if (protocol == '') {
+        continue;
+      }
+      for (const [localImplementation, localTests] of localProtocols.get(protocol)) {
+        implementations.add(localImplementation);
+        for (const [localTest, _] of localTests.tests) {
+          tests.add(localTest);
+        }
+      }
+    }
+    return [protocols, implementations, tests];
+  });
 
   $effect(() => {
     const navbarBurgers = Array.prototype.slice.call(
@@ -47,7 +74,7 @@
           <label class="label" for="environment">Environment</label>
           <div class="control select">
             <select bind:value={environment} id="environment">
-              {#each csv.environments as environment}
+              {#each csv.environments() as environment}
                 <option value={environment}>{environment}</option>
               {/each}
             </select>
@@ -57,12 +84,13 @@
 
       <div class="navbar-item">
         <div>
-          <label class="label" for="days">Days</label>
+          <label class="label" for="lastDays">Last days</label>
           <div class="control">
             <input
-              bind:value={days}
+              bind:value={lastDays}
               class="input"
-              id="days"
+              id="lastDays"
+              max={maxDays}
               min="1"
               style="width:80px;"
               type="number"
@@ -77,7 +105,7 @@
           <div class="control">
             <div class="select">
               <select bind:value={protocol} id="protocol">
-                {#each csv.protocols as protocol}
+                {#each protocols as protocol}
                   <option value={protocol}>{protocol}</option>
                 {/each}
               </select>
@@ -93,7 +121,7 @@
             <div class="select">
               <select bind:value={implementation} id="implementation">
                 <option value=""></option>
-                {#each csv.implementations as implementation}
+                {#each implementations as implementation}
                   <option value={implementation}>{implementation}</option>
                 {/each}
               </select>
@@ -109,7 +137,7 @@
             <div class="select">
               <select bind:value={test} id="test">
                 <option value=""></option>
-                {#each csv.tests as test}
+                {#each tests as test}
                   <option value={test}>{test}</option>
                 {/each}
               </select>

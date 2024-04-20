@@ -1,16 +1,14 @@
 <script lang="ts">
   import Chart from 'chart.js/auto';
-  import { randomColor } from '$lib/Utils';
-  import type { manyDaysChart } from '$lib/types';
+  import type { manyDatesChart } from '$lib/types';
 
-  let { dataset, labels }: { dataset: manyDaysChart; labels: string[] } = $props();
+  let { dataset, labels }: { dataset: manyDatesChart; labels: string[] } = $props();
 
   let chart: any = undefined;
 
   $effect(() => {
     const datasets = () => {
-      return dataset.map(([label, data]) => {
-        const color = randomColor();
+      return dataset.map(([label, color, data]) => {
         return {
           backgroundColor: color,
           borderColor: color,
@@ -27,13 +25,13 @@
       chart.update();
       return;
     }
-    chart = new Chart('manyDaysChart', {
-      type: 'line',
-      data: { datasets: datasets(), labels }
+    chart = new Chart('manyDatesChart', {
+      data: { datasets: datasets(), labels },
+      type: 'line'
     });
   });
 </script>
 
 <div>
-  <canvas id="manyDaysChart"></canvas>
+  <canvas id="manyDatesChart"></canvas>
 </div>
