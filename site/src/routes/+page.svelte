@@ -1,23 +1,51 @@
 <script lang="ts">
-  import { dateAndTime } from '$lib/Utils';
+  import { dateAndTime, firstDateOfLastDays, environmentStateParams } from '$lib/Utils';
   import Csv from '$lib/Csv';
   import FirstPlacesChart from './FirstPlacesChart.svelte';
   import Header from './Header.svelte';
   import ManyDatesChart from './ManyDatesChart.svelte';
+  import {
+    ArcElement,
+    CategoryScale,
+    Chart,
+    Legend,
+    LinearScale,
+    LineController,
+    LineElement,
+    PieController,
+    PointElement,
+    Tooltip
+  } from 'chart.js';
+
+  Chart.register(
+    ArcElement,
+    CategoryScale,
+    Legend,
+    LinearScale,
+    LineController,
+    LineElement,
+    PieController,
+    PointElement,
+    Tooltip
+  );
 
   let { data }: { data: { csv: Csv } } = $props();
 
-  let environment: string = $state(data.csv.results.keys().next().value);
-  let implementation: string = $state('');
-  let lastDays: number = $state(1);
-  let protocol: string = $state('');
-  let test: string = $state('');
+  const firstEnvironment = data.csv.results.keys().next().value;
+  const firstParams = environmentStateParams(data.csv, firstEnvironment);
+
+  let environment = $state(firstEnvironment);
+  let implementation = $state('');
+  let lastDays = $state(firstParams.lastDays);
+  let maxDays = $state(firstParams.maxDays);
+  let protocol = $state(firstParams.protocol);
+  let test = $state('');
 
   let chartsData = $derived.by(() => {
     return data.csv.chartsData(environment, dates, protocol, implementation, test);
   });
   let dates = $derived.by(() => {
-    return [...data.csv.allDates(environment)].reverse();
+    return [...data.csv.allDates(environment, firstDateOfLastDays(lastDays))].reverse();
   });
   let datesStrings = $derived.by(() => {
     return dates.map((date) => dateAndTime(new Date(date)));
@@ -29,18 +57,12 @@
       return 'First places';
     }
   });
-  let maxDays = $derived(data.csv.oldestDayCountFromEnvironment(environment));
   let scoresTitle = $derived.by(() => {
     if (implementation === '' && test === '') {
-      return 'Scores (Geometric mean of all tests)';
+      return 'Completion time in milliseconds (Geometric mean of all tests)';
     } else {
-      return 'Scores';
+      return 'Completion time in milliseconds';
     }
-  });
-
-  $effect(() => {
-    lastDays = Math.min(data.csv.oldestDayCountFromEnvironment(environment), 7);
-    protocol = data.csv.results.get(environment)!.values().next().value.keys().next().value;
   });
 </script>
 

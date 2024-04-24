@@ -30,7 +30,9 @@ macro_rules! name {
     };
 }
 
-pub(crate) async fn bench_all((generic_rp, rps): (&mut ReportLine, &mut Vec<ReportLine>)) {
+pub(crate) async fn bench_all(
+    (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
+) -> wtx::Result<()> {
     let uri = || UriRef::new(SOCKET_STR);
     manage_tests(
         generic_rp,
@@ -70,17 +72,18 @@ pub(crate) async fn bench_all((generic_rp, rps): (&mut ReportLine, &mut Vec<Repo
             ),
         ],
     );
+    Ok(())
 }
 
-async fn write((frames, msgs): (usize, usize), payload: &[u8], uri: UriRef<'_>) {
+async fn write((frames, msgs): (usize, usize), payload: &[u8], uri: UriRef<'_>) -> wtx::Result<()> {
     let fb = &mut FrameBufferVec::default();
-    let mut ws = ws(fb, &uri).await;
+    let mut ws = ws(fb, &uri).await?;
     for _ in 0..msgs {
-        write_frames(fb, frames, payload, &mut ws).await;
+        write_frames(fb, frames, payload, &mut ws).await?;
     }
-    ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Close, &[]).unwrap())
-        .await
-        .unwrap();
+    ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Close, &[])?)
+        .await?;
+    Ok(())
 }
 
 async fn write_frames(
@@ -88,46 +91,42 @@ async fn write_frames(
     frames: usize,
     payload: &[u8],
     ws: &mut WebSocketClientOwned<(), StaticRng, TcpStream>,
-) {
+) -> wtx::Result<()> {
     let mut iter = payload.chunks(payload.len() / frames);
     let Some(first) = iter.next() else {
         panic!("No frames are being measured");
     };
-    if let Some(second) = iter.next() {
-        ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Text, first).unwrap())
-            .await
-            .unwrap();
+    if let Some(last) = iter.by_ref().rev().next() {
+        ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Text, first)?)
+            .await?;
         for elem in iter {
-            ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Continuation, elem).unwrap())
-                .await
-                .unwrap();
+            ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Continuation, elem)?)
+                .await?;
         }
-        ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Continuation, second).unwrap())
-            .await
-            .unwrap();
+        ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Continuation, last)?)
+            .await?;
     } else {
-        ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Text, first).unwrap())
-            .await
-            .unwrap();
+        ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Text, first)?)
+            .await?;
     }
-    let _ = ws.read_frame(fb).await.unwrap();
+    assert_eq!(ws.read_frame(fb).await?.fb().payload().len(), payload.len());
+    Ok(())
 }
 
 async fn ws(
     fb: &mut FrameBufferVec,
     uri: &UriRef<'_>,
-) -> WebSocketClientOwned<(), StaticRng, TcpStream> {
-    WebSocketConnectRaw {
+) -> wtx::Result<WebSocketClientOwned<(), StaticRng, TcpStream>> {
+    Ok(WebSocketConnectRaw {
         compression: (),
         fb,
         headers_buffer: &mut HeadersBuffer::default(),
         rng: StaticRng::default(),
-        stream: TcpStream::connect(SOCKET_ADDR).await.unwrap(),
+        stream: TcpStream::connect(SOCKET_ADDR).await?,
         uri,
         wsb: WebSocketBuffer::default(),
     }
     .connect([])
-    .await
-    .unwrap()
-    .1
+    .await?
+    .1)
 }

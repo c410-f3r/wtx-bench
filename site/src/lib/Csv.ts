@@ -2,8 +2,6 @@ import BenchStats from './BenchStats';
 import { randomColor } from './Utils';
 import type { firstPlacesChart, manyDatesChart } from './types';
 
-const ONE_DAY = 1000 * 60 * 60 * 24;
-
 type Dates = Map<number, Protocols>;
 type Environments = Map<string, Dates>;
 type Implementations = Map<string, Tests>;
@@ -52,7 +50,7 @@ class Csv {
 
       let tests = implementations.get(implementation);
       if (tests === undefined) {
-        tests = { geometricMean: 1, tests: new Map() };
+        tests = { geometricMean: 0, tests: new Map() };
         implementations.set(implementation, tests);
       }
 
@@ -64,7 +62,7 @@ class Csv {
           parseFloat(mean),
           parseFloat(sd)
         );
-        tests.geometricMean = tests.geometricMean * bench_stats.mean;
+        tests.geometricMean = tests.geometricMean + Math.log2(bench_stats.mean);
         tests.tests.set(test, bench_stats);
       }
     });
@@ -73,18 +71,20 @@ class Csv {
       environment.forEach((dates) => {
         dates.forEach((protocols) => {
           protocols.forEach((implementations) => {
-            implementations.geometricMean = Math.pow(
-              implementations.geometricMean,
-              1 / implementations.tests.size
-            );
+            const rslt = implementations.geometricMean / implementations.tests.size;
+            implementations.geometricMean = Math.pow(2, rslt);
           });
         });
       });
     });
   }
 
-  allDates(environment: string): IterableIterator<number> {
-    return this.results.get(environment)!.keys();
+  *allDates(environment: string, lowerBound: Date): Generator<number> {
+    for (const date of this.results.get(environment)!.keys()) {
+      if (date > lowerBound.getTime()) {
+        yield date;
+      }
+    }
   }
 
   chartsData(
@@ -156,27 +156,15 @@ class Csv {
     const manyImplementationsOneTest = () => {
       dates.forEach((date) => {
         let idx = 0;
-        let bestImplementation: [string, number] | undefined = undefined;
         this.results
           .get(environment)
           ?.get(date)
           ?.get(protocol)
           ?.forEach(({ geometricMean, tests }, implementationName) => {
             const benchStats = tests.get(test)!;
-            if (bestImplementation == undefined) {
-              bestImplementation = [implementationName, benchStats.mean];
-            } else {
-              if (benchStats.mean < bestImplementation[1]) {
-                bestImplementation = [implementationName, benchStats.mean];
-              }
-            }
             manageScore(manageColors(implementationName), idx, implementationName, benchStats.mean);
             idx = idx + 1;
           });
-        if (bestImplementation == undefined) {
-          return;
-        }
-        manageFirstPlace(bestImplementation[0]);
       });
     };
 
@@ -217,7 +205,7 @@ class Csv {
       return [firstPlaces, scores];
     } else if (implementation === '' && test !== '') {
       manyImplementationsOneTest();
-      return [firstPlaces, scores];
+      return [undefined, scores];
     } else if (implementation !== '' && test === '') {
       oneImplementationManyTests();
       return [undefined, scores];
@@ -229,19 +217,6 @@ class Csv {
 
   environments(): IterableIterator<string> {
     return this.results.keys();
-  }
-
-  oldestDayCountFromEnvironment(environment: string): number {
-    let now = new Date();
-    now.setHours(24, 0, 0, 0);
-    let rslt = 1;
-    this.results.get(environment)?.forEach((_, date) => {
-      const diff = Math.ceil((now.getTime() - date) / ONE_DAY);
-      if (diff > rslt) {
-        rslt = diff;
-      }
-    });
-    return rslt;
   }
 }
 

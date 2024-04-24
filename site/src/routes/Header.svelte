@@ -1,14 +1,30 @@
 <script lang="ts">
+  import { environmentStateParams, protocolState } from '$lib/Utils';
+
   let {
     csv,
     dates,
     environment = $bindable(),
     implementation = $bindable(),
     lastDays = $bindable(),
-    maxDays,
+    maxDays = $bindable(),
     protocol = $bindable(),
     test = $bindable()
   }: any = $props();
+
+  const environmentInput = (elem: any) => {
+    const localEnvironment = elem.target.value;
+    const params = environmentStateParams(csv, localEnvironment);
+    environment = localEnvironment;
+    lastDays = params.lastDays;
+    maxDays = params.maxDays;
+    protocol = params.protocol;
+  };
+
+  const lastDaysInput = (elem: any) => {
+    lastDays = elem.target.value;
+    protocol = protocolState(csv, environment, dates.at(-1));
+  };
 
   let [protocols, implementations, tests] = $derived.by(() => {
     let implementations = new Set();
@@ -73,7 +89,7 @@
         <div>
           <label class="label" for="environment">Environment</label>
           <div class="control select">
-            <select bind:value={environment} id="environment">
+            <select id="environment" oninput={environmentInput}>
               {#each csv.environments() as environment}
                 <option value={environment}>{environment}</option>
               {/each}
@@ -87,13 +103,14 @@
           <label class="label" for="lastDays">Last days</label>
           <div class="control">
             <input
-              bind:value={lastDays}
               class="input"
               id="lastDays"
               max={maxDays}
               min="1"
+              oninput={lastDaysInput}
               style="width:80px;"
               type="number"
+              value={lastDays}
             />
           </div>
         </div>

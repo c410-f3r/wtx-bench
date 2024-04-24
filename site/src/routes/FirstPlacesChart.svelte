@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Chart from 'chart.js/auto';
+  import { Chart } from 'chart.js';
   import type { firstPlacesChart } from '$lib/types';
 
   let { dataset }: { dataset: firstPlacesChart } = $props();

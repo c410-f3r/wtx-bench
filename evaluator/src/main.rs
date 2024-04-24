@@ -19,6 +19,7 @@ use std::{
     io::Read,
     net::{Ipv4Addr, SocketAddrV4, ToSocketAddrs},
     path::{Path, PathBuf},
+    str,
     time::Duration,
 };
 use tokio::{
@@ -74,12 +75,18 @@ fn encode_report(bytes: &[u8]) -> Vec<u8> {
 
 async fn handle_cmd_output(cmd: &mut Command) {
     let output = cmd.output().await.unwrap();
-    if !output.status.success() {
-        panic!(
-            "Command failed: {}",
-            String::from_utf8(output.stderr).unwrap()
-        );
-    }
+    println!(
+        "Stdout of command {:?} {:?}: {}",
+        cmd.as_std().get_program(),
+        cmd.as_std().get_args().next().unwrap(),
+        str::from_utf8(&output.stdout).unwrap()
+    );
+    eprintln!(
+        "Stderr of command {:?} {:?}: {}",
+        cmd.as_std().get_program(),
+        cmd.as_std().get_args().next().unwrap(),
+        str::from_utf8(&output.stderr).unwrap()
+    );
 }
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
@@ -146,7 +153,7 @@ async fn manage_protocol_dir(
     protocol_dir: &Path,
     rps: &mut Vec<ReportLine>,
     timestamp: u64,
-    mut fun: impl for<'any> FnMutFut<(&'any mut ReportLine, &'any mut Vec<ReportLine>), ()>,
+    mut fun: impl for<'any> FnMutFut<(ReportLine, &'any mut Vec<ReportLine>), wtx::Result<()>>,
 ) {
     let mut iter = read_dir(protocol_dir).await.unwrap();
     while let Some(implementation_dir_entry) = iter.next_entry().await.unwrap() {
@@ -159,22 +166,24 @@ async fn manage_protocol_dir(
         };
         path.push("Dockerfile");
         write_file(bytes, &path).await;
-        println!("Building implementation '{implementation}' of protocol '{protocol}'");
+        println!("***** Building implementation '{implementation}' of protocol '{protocol}' *****");
         podman_build(&implementation, protocol).await;
         podman_run().await;
-        sleep(Duration::from_secs(5)).await;
-        println!("Benchmarking implementation '{implementation}' of protocol '{protocol}'");
-        fun((
-            &mut ReportLine::implementation_generic(
-                environment,
-                protocol,
-                &implementation,
-                timestamp,
-            ),
+        sleep(Duration::from_secs(3)).await;
+        println!(
+            "***** Benchmarking implementation '{implementation}' of protocol '{protocol}' *****"
+        );
+        let rslt = fun((
+            ReportLine::implementation_generic(environment, protocol, &implementation, timestamp),
             rps,
         ))
         .await;
+        podman_logs().await;
         podman_rm().await;
+        if let Err(err) = rslt {
+            panic!("{err:?}");
+        }
+        sleep(Duration::from_secs(3)).await;
     }
 }
 
@@ -218,7 +227,7 @@ async fn manage_protocols_dir(
 }
 
 fn manage_tests(
-    generic_rp: &mut ReportLine,
+    mut generic_rp: ReportLine,
     rps: &mut Vec<ReportLine>,
     tests_params: impl IntoIterator<Item = (&'static str, BenchStats)>,
 ) {
@@ -248,6 +257,10 @@ async fn podman_build(implementation: &str, protocol: Protocol) {
         ]),
     )
     .await
+}
+
+async fn podman_logs() {
+    handle_cmd_output(Command::new("podman").args(&["logs", "bench"])).await;
 }
 
 async fn podman_rm() {

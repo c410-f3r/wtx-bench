@@ -1,13 +1,36 @@
+import type Csv from './Csv';
+
+const ONE_DAY = 1000 * 60 * 60 * 24;
+
 export function dateAndTime(date: Date): string {
   return date.toLocaleString();
 }
 
-export function lastIterElem<T>(iter: IterableIterator<T>): T | undefined {
-  let rslt = undefined;
-  for (const elem of iter) {
-    rslt = elem;
-  }
-  return rslt;
+export function environmentStateParams(
+  csv: Csv,
+  environment: string
+): {
+  lastDays: number;
+  maxDays: number;
+  protocol: string;
+} {
+  const { count, date } = oldestFromEnvironment(csv, environment);
+  return {
+    lastDays: count,
+    maxDays: Math.min(count, 7),
+    protocol: protocolState(csv, environment, date)
+  };
+}
+
+export function firstDateOfLastDays(lastDays: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() - lastDays);
+  date.setHours(24, 0, 0, 0);
+  return date;
+}
+
+export function protocolState(csv: Csv, environment: string, date: number): string {
+  return csv.results.get(environment)!.get(date)!.keys().next().value;
 }
 
 export function randomColor() {
@@ -17,4 +40,23 @@ export function randomColor() {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
+}
+
+function oldestFromEnvironment(csv: Csv, environment: string): { count: number; date: number } {
+  const iter = csv.results.get(environment)!.keys();
+  const firstDate = iter.next().value;
+  const now = firstDateOfLastDays(0);
+  const countDiffFn = (date: number) => Math.ceil((now.getTime() - date) / ONE_DAY);
+
+  let count = countDiffFn(firstDate);
+  let date = firstDate;
+  for (const localDate of iter) {
+    const countDiff = countDiffFn(localDate);
+    if (countDiff > count) {
+      count = countDiff;
+      date = localDate;
+    }
+  }
+
+  return { count, date };
 }

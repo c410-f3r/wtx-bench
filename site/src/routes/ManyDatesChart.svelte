@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Chart from 'chart.js/auto';
+  import { Chart } from 'chart.js';
   import type { manyDatesChart } from '$lib/types';
 
   let { dataset, labels }: { dataset: manyDatesChart; labels: string[] } = $props();
