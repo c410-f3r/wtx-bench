@@ -74,7 +74,7 @@
         aria-label="menu"
         class="navbar-burger"
         data-target="wtx-navbar"
-        href="/"
+        href={"#"}
         role="button"
       >
         <span aria-hidden="true"></span>
