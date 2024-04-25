@@ -94,7 +94,7 @@ async fn handle_cmd_output(cmd: &mut Command) {
 }
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
-    let csv = {
+    let csv_fun = || async move {
         let cp = ConnectParams::default();
         let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
         let mut http2 = Http2Tokio::connect(
@@ -103,24 +103,24 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
             TokioRustlsConnector::from_webpki_roots()
                 .http2()
                 .with_tcp_stream(
-                    uri.host().to_socket_addrs().unwrap().next().unwrap(),
+                    uri.host().to_socket_addrs()?.next().unwrap(),
                     uri.hostname(),
                 )
-                .await
-                .unwrap(),
+                .await?,
         )
-        .await
-        .unwrap();
+        .await?;
         let mut rrb = ReqResBuffer::with_capacity();
-        let mut stream = http2.stream().await.unwrap();
+        let mut stream = http2.stream().await?;
         let res = stream
             .send_req_recv_res(
                 Request::http2(&[], &Headers::new(4096), Method::Get, uri.to_ref()),
                 &mut rrb,
             )
-            .await
-            .unwrap();
-        decode_report(res.unwrap().body())
+            .await?;
+        wtx::Result::Ok(decode_report(res.unwrap().body()))
+    };
+    let Ok(csv) = csv_fun().await else {
+        return;
     };
     let lower_bound = Duration::from_millis(curr_timestamp) - _30_DAYS;
     for line in csv.split('\n').skip(1) {
