@@ -1,0 +1,12 @@
+[dependencies]
+futures = { default-features = false, version = "0.3" }
+soketto = { default-features = false, version = "0.8" }
+tokio = { default-features = false, features = ["macros", "net", "rt-multi-thread"], version = "1.0" }
+tokio-stream = { default-features = false, features = ["net"], version = "0.1" }
+tokio-util = { default-features = false, features = ["compat"], version = "0.7" }
+
+[package]
+edition = "2021"
+name = "soketto"
+publish = false
+version = "0.0.0"
