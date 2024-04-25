@@ -5,9 +5,15 @@ on:
       - master
   schedule:
     - cron: "0 0 * * *"
+  workflow_run:
+    branches: [master]
+    types:
+      - completed
+    workflows: ["Tests"]
 
 jobs:
   deploy:
+    if: ${{ (github.event.workflow_run.conclusion == 'success') || (github.event_name == 'schedule') }} 
     runs-on: ubuntu-latest
     permissions:
       contents: write
