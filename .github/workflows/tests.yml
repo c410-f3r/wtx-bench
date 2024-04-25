@@ -23,7 +23,7 @@ jobs:
           cargo clippy
           cargo run --release
 
-  frontend:
+  site:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

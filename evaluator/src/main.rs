@@ -120,6 +120,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
         wtx::Result::Ok(decode_report(res.unwrap().body())?)
     };
     let Ok(csv) = csv_fun().await else {
+        println!("Couldn't find previous report file");
         return;
     };
     let lower_bound = Duration::from_millis(curr_timestamp) - _30_DAYS;
