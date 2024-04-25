@@ -44,19 +44,23 @@ const SOCKET_STR: &str = "127.0.0.1:9000";
 async fn main() {
     let environment = std::env::args()
         .nth(1)
-        .unwrap_or_else(|| String::from("Teste"))
-        .as_str()
+        .as_deref()
+        .unwrap_or("Teste")
         .try_into()
         .unwrap();
     let timestamp = timestamp();
     let mut rps = Vec::new();
-    manage_prev_csv(timestamp, &mut rps).await;
-    let mut root_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+    if cfg!(feature = "deploy") {
+        manage_prev_csv(timestamp, &mut rps).await;
+    }
+    let root_dir = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
         .to_owned();
     manage_protocols_dir(&root_dir, environment, &mut rps, timestamp).await;
-    write_csv(&mut root_dir, &mut rps).await;
+    if cfg!(feature = "deploy") {
+        write_csv(root_dir, &mut rps).await;
+    }
 }
 
 fn decode_report(bytes: &[u8]) -> String {
@@ -240,7 +244,7 @@ fn manage_tests(
 
 async fn podman_build(implementation: &str, protocol: Protocol) {
     handle_cmd_output(
-        Command::new("podman").args(&[
+        Command::new("podman").args([
             "build",
             "--build-arg",
             ArrayString::<64>::try_from(format_args!("IMPLEMENTATION={implementation}"))
@@ -260,15 +264,15 @@ async fn podman_build(implementation: &str, protocol: Protocol) {
 }
 
 async fn podman_logs() {
-    handle_cmd_output(Command::new("podman").args(&["logs", "bench"])).await;
+    handle_cmd_output(Command::new("podman").args(["logs", "bench"])).await;
 }
 
 async fn podman_rm() {
-    handle_cmd_output(Command::new("podman").args(&["rm", "-f", "bench"])).await;
+    handle_cmd_output(Command::new("podman").args(["rm", "-f", "bench"])).await;
 }
 
 async fn podman_run() {
-    handle_cmd_output(Command::new("podman").args(&[
+    handle_cmd_output(Command::new("podman").args([
         "run",
         "-d",
         "--name",
@@ -292,8 +296,8 @@ fn timestamp() -> u64 {
         .unwrap()
 }
 
-async fn write_csv(root_dir: &mut PathBuf, rps: &mut Vec<ReportLine>) {
-    root_dir.push("report.csv.gzip");
+async fn write_csv(mut root_dir: PathBuf, rps: &mut Vec<ReportLine>) {
+    root_dir.push("site/static/report.csv.gzip");
     rps.sort_unstable_by(|a, b| {
         (b.timestamp, a.test, a.bench_stats.mean)
             .partial_cmp(&(a.timestamp, b.test, b.bench_stats.mean))

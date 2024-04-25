@@ -54,9 +54,9 @@ class Csv {
         implementations.set(implementation, tests);
       }
 
-      let testValue = tests.tests.get(test);
+      const testValue = tests.tests.get(test);
       if (testValue === undefined) {
-        let bench_stats = new BenchStats(
+        const bench_stats = new BenchStats(
           parseFloat(min),
           parseFloat(max),
           parseFloat(mean),
@@ -94,8 +94,8 @@ class Csv {
     implementation: string,
     test: string
   ): [firstPlacesChart | undefined, manyDatesChart] {
-    let firstPlaces: firstPlacesChart = new Map();
-    let scores: manyDatesChart = [];
+    const firstPlaces: firstPlacesChart = new Map();
+    const scores: manyDatesChart = [];
 
     const manageColors = (implementation: string): string => {
       let value = firstPlaces.get(implementation);
@@ -126,7 +126,7 @@ class Csv {
     };
 
     const manyImplementationsManyTests = () => {
-      let bestTests = new Map<string, [string, number]>();
+      const bestTests = new Map<string, [string, number]>();
       dates.forEach((date) => {
         let idx = 0;
         this.results
@@ -146,7 +146,7 @@ class Csv {
               }
             });
           });
-        bestTests.forEach(([implementationName, _]) => {
+        bestTests.forEach(([implementationName]) => {
           manageFirstPlace(implementationName);
         });
         bestTests.clear();
@@ -160,7 +160,7 @@ class Csv {
           .get(environment)
           ?.get(date)
           ?.get(protocol)
-          ?.forEach(({ geometricMean, tests }, implementationName) => {
+          ?.forEach(({ tests }, implementationName) => {
             const benchStats = tests.get(test)!;
             manageScore(manageColors(implementationName), idx, implementationName, benchStats.mean);
             idx = idx + 1;
@@ -170,11 +170,11 @@ class Csv {
 
     const oneImplementationManyTests = () => {
       dates.forEach((date) => {
-        let protocols = this.results.get(environment)?.get(date);
+        const protocols = this.results.get(environment)?.get(date);
         if (protocols === undefined) {
           return;
         }
-        let localImplementation = protocols.get(protocol)?.get(implementation);
+        const localImplementation = protocols.get(protocol)?.get(implementation);
         if (localImplementation == undefined) {
           return;
         }

@@ -23,10 +23,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: |
           cd evaluator
-          cargo build --release
-          cargo run --release -- "Shared GitHub runner"
+          cargo build --release --features deploy
+          cargo run --release --features deploy -- "Shared GitHub runner"
           cd ../site
-          mv ../report.csv.gzip static
           npm install
           npm run build
       - uses: actions/configure-pages@v5

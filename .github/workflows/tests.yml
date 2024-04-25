@@ -1,0 +1,36 @@
+name: Tests
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  evaluator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          components: clippy, rustfmt
+          override: true
+          profile: minimal
+          toolchain: nightly-2024-02-19
+      - uses: Swatinem/rust-cache@v2
+      - run: |
+          cd evaluator
+          cargo fmt --all -- --check
+          cargo clippy
+          cargo run --release
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cd site
+          npm ci
+          npm run format
+          npm run check
+          npm run lint
+          npm run build

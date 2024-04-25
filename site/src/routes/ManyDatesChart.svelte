@@ -4,7 +4,7 @@
 
   let { dataset, labels }: { dataset: manyDatesChart; labels: string[] } = $props();
 
-  let chart: any = undefined;
+  let chart: Chart<'line', number[], string> | undefined = undefined;
 
   $effect(() => {
     const datasets = () => {

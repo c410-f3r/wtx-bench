@@ -1,6 +1,13 @@
+#[cfg(feature = "deploy")]
 macro_rules! connections {
     () => {
-        128
+        64
+    };
+}
+#[cfg(not(feature = "deploy"))]
+macro_rules! connections {
+    () => {
+        1
     };
 }
 

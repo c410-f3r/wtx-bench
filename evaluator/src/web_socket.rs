@@ -96,7 +96,7 @@ async fn write_frames(
     let Some(first) = iter.next() else {
         panic!("No frames are being measured");
     };
-    if let Some(last) = iter.by_ref().rev().next() {
+    if let Some(last) = iter.next_back() {
         ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Text, first)?)
             .await?;
         for elem in iter {
