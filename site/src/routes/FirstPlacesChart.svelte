@@ -4,7 +4,7 @@
 
   let { dataset }: { dataset: firstPlacesChart } = $props();
 
-  let chart: any = undefined;
+  let chart: Chart<'pie', number[], string> | undefined = undefined;
 
   $effect(() => {
     const datasets = () => [

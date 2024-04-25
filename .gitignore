@@ -1,3 +1,4 @@
+**/Cargo.lock
 **/Dockerfile
 **/node_modules
 **/target

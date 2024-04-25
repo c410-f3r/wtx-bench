@@ -1,0 +1,11 @@
+[dependencies]
+fastwebsockets = { default-features = false, features = ["simd", "upgrade"], version = "0.7" }
+hyper = { default-features = false, version = "1.0" }
+hyper-util = { default-features = false, version = "0.1" }
+tokio = { default-features = false, features = ["macros", "net", "rt"], version = "1.0" }
+
+[package]
+edition = "2021"
+name = "fastwebsockets"
+publish = false
+version = "0.0.0"

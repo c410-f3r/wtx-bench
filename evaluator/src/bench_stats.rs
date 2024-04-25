@@ -17,10 +17,10 @@ impl BenchStats {
         for value in data.iter().copied() {
             max = max.max(value);
             min = min.min(value);
-            sum = sum + value;
+            sum += value;
         }
-        let len: f64 = u32::try_from(data.len()).unwrap().try_into().unwrap();
-        let mean = data.iter().sum::<f64>() / len;
+        let len: f64 = u32::try_from(data.len()).unwrap().into();
+        let mean = sum / len;
         Self {
             max,
             min,

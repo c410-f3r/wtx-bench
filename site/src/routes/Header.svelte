@@ -1,4 +1,6 @@
 <script lang="ts">
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+
   import { environmentStateParams, protocolState } from '$lib/Utils';
 
   let {
@@ -35,7 +37,7 @@
       if (!dates.includes(localDate)) {
         continue;
       }
-      for (const [localProtocol, _] of localProtocols) {
+      for (const [localProtocol] of localProtocols) {
         protocols.add(localProtocol);
       }
       if (protocol == '') {
@@ -43,7 +45,7 @@
       }
       for (const [localImplementation, localTests] of localProtocols.get(protocol)) {
         implementations.add(localImplementation);
-        for (const [localTest, _] of localTests.tests) {
+        for (const [localTest] of localTests.tests) {
           tests.add(localTest);
         }
       }
@@ -74,7 +76,7 @@
         aria-label="menu"
         class="navbar-burger"
         data-target="wtx-navbar"
-        href={"#"}
+        href={'#'}
         role="button"
       >
         <span aria-hidden="true"></span>
