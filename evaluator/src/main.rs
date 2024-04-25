@@ -63,11 +63,11 @@ async fn main() {
     }
 }
 
-fn decode_report(bytes: &[u8]) -> String {
+fn decode_report(bytes: &[u8]) -> wtx::Result<String> {
     let mut gz = GzDecoder::new(bytes);
     let mut buffer = String::new();
-    gz.read_to_string(&mut buffer).unwrap();
-    buffer
+    gz.read_to_string(&mut buffer)?;
+    Ok(buffer)
 }
 
 fn encode_report(bytes: &[u8]) -> Vec<u8> {
@@ -117,7 +117,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 &mut rrb,
             )
             .await?;
-        wtx::Result::Ok(decode_report(res.unwrap().body()))
+        wtx::Result::Ok(decode_report(res.unwrap().body())?)
     };
     let Ok(csv) = csv_fun().await else {
         return;
