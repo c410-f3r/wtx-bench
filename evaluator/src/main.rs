@@ -109,7 +109,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 .await?,
         )
         .await?;
-        let mut rrb = ReqResBuffer::with_capacity();
+        let mut rrb = ReqResBuffer::default();
         let mut stream = http2.stream().await?;
         let res = stream
             .send_req_recv_res(
@@ -117,7 +117,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 &mut rrb,
             )
             .await?;
-        wtx::Result::Ok(decode_report(res.unwrap().body())?)
+        decode_report(res.resource().unwrap().body())
     };
     let Ok(csv) = csv_fun().await else {
         println!("Couldn't find previous report file");
@@ -172,9 +172,10 @@ async fn manage_protocol_dir(
         path.push("Dockerfile");
         write_file(bytes, &path).await;
         println!("***** Building implementation '{implementation}' of protocol '{protocol}' *****");
+        podman_rm().await;
         podman_build(&implementation, protocol).await;
         podman_run().await;
-        sleep(Duration::from_secs(3)).await;
+        sleep(Duration::from_secs(1)).await;
         println!(
             "***** Benchmarking implementation '{implementation}' of protocol '{protocol}' *****"
         );
@@ -188,7 +189,7 @@ async fn manage_protocol_dir(
         if let Err(err) = rslt {
             panic!("{err:?}");
         }
-        sleep(Duration::from_secs(3)).await;
+        sleep(Duration::from_secs(1)).await;
     }
 }
 
