@@ -67,10 +67,10 @@
 </script>
 
 <svelte:head>
-  <title>Benchmarks</title>
+  <title>WEB Benchmarks</title>
   <meta
     name="description"
-    content="Benchmarks focused on web technologies intended to measure the 'wtx' project"
+    content="Different benchmarks of different WEB technologies measured mainly to evaluate the performance of the 'wtx' project"
   />
 </svelte:head>
 

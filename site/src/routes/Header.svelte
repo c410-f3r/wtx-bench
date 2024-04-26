@@ -40,10 +40,11 @@
       for (const [localProtocol] of localProtocols) {
         protocols.add(localProtocol);
       }
-      if (protocol == '') {
+      const localProtocol = localProtocols.get(protocol);
+      if (localProtocol === undefined) {
         continue;
       }
-      for (const [localImplementation, localTests] of localProtocols.get(protocol)) {
+      for (const [localImplementation, localTests] of localProtocol) {
         implementations.add(localImplementation);
         for (const [localTest] of localTests.tests) {
           tests.add(localTest);
