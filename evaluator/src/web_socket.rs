@@ -1,7 +1,6 @@
 use crate::{
-    bench_stats::BenchStats,
     data::{string_bytes_2mib, string_bytes_8kib},
-    manage_tests,
+    manage_cases,
     report_line::ReportLine,
     SOCKET_ADDR, SOCKET_STR,
 };
@@ -18,10 +17,10 @@ use wtx::{
 pub(crate) async fn bench_all(
     (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
 ) -> wtx::Result<()> {
-    macro_rules! name {
-        ($msgs:expr, $msg_size:expr, $frames:expr) => {
-            concat!(
-                connections!(),
+    macro_rules! case {
+        (($msgs:expr, $msg_size:expr, $frames:expr), $ex:expr) => {{
+            let name = concat!(
+                web_socket_connections!(),
                 " connection(s) sending ",
                 $msgs,
                 " text message(s) of ",
@@ -29,48 +28,30 @@ pub(crate) async fn bench_all(
                 " composed by ",
                 $frames,
                 " frame(s)"
+            );
+            (
+                name,
+                manage_case!(web_socket_connections!(), name, generic_rp, $ex),
             )
-        };
+        }};
     }
-
-    manage_tests(
-        generic_rp,
-        rps,
-        [
-            (
-                name!(1, "8 KiB", 1),
-                manage_bench!(write((1, 1), string_bytes_8kib()).await),
-            ),
-            (
-                name!(1, "2 MiB", 1),
-                manage_bench!(write((1, 1), string_bytes_2mib()).await),
-            ),
-            (
-                name!(1, "8 KiB", 64),
-                manage_bench!(write((1, 64), string_bytes_8kib()).await),
-            ),
-            (
-                name!(1, "2 MiB", 64),
-                manage_bench!(write((1, 64), string_bytes_2mib()).await),
-            ),
-            (
-                name!(64, "8 KiB", 1),
-                manage_bench!(write((64, 1), string_bytes_8kib()).await),
-            ),
-            (
-                name!(64, "2 MiB", 1),
-                manage_bench!(write((64, 1), string_bytes_2mib()).await),
-            ),
-            (
-                name!(64, "8 KiB", 64),
-                manage_bench!(write((64, 64), string_bytes_8kib()).await),
-            ),
-            (
-                name!(64, "2 MiB", 64),
-                manage_bench!(write((64, 64), string_bytes_2mib()).await),
-            ),
-        ],
-    );
+    let params = [
+        case!((1, "8 KiB", 1), write((1, 1), string_bytes_8kib()).await),
+        case!((1, "2 MiB", 1), write((1, 1), string_bytes_2mib()).await),
+        case!((1, "8 KiB", 64), write((1, 64), string_bytes_8kib()).await),
+        case!((1, "2 MiB", 64), write((1, 64), string_bytes_2mib()).await),
+        case!((64, "8 KiB", 1), write((64, 1), string_bytes_8kib()).await),
+        case!((64, "2 MiB", 1), write((64, 1), string_bytes_2mib()).await),
+        case!(
+            (64, "8 KiB", 64),
+            write((64, 64), string_bytes_8kib()).await
+        ),
+        case!(
+            (64, "2 MiB", 64),
+            write((64, 64), string_bytes_2mib()).await
+        ),
+    ];
+    manage_cases(generic_rp, rps, params);
     Ok(())
 }
 

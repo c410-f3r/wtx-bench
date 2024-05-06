@@ -1,50 +1,56 @@
-use crate::{
-    bench_stats::BenchStats, manage_tests, report_line::ReportLine, SOCKET_ADDR, SOCKET_STR,
-};
+use crate::{manage_cases, report_line::ReportLine, SOCKET_ADDR, URI_STR};
 use tokio::net::TcpStream;
 use wtx::{
-    http::{Headers, Method, Request},
-    http2::{ConnectParams, Http2Buffer, Http2Tokio, ReqResBuffer},
-    misc::UriRef,
+    http::Method,
+    http2::{ErrorCode, Http2Buffer, Http2Params, Http2Tokio, ReqResBuffer},
     rng::StaticRng,
 };
 
 pub(crate) async fn bench_all(
     (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
 ) -> wtx::Result<()> {
-    macro_rules! name {
-        ($msg_size:expr) => {
-            concat!(
-                connections!(),
-                " connection(s) opening one stream that sends requests of ",
+    macro_rules! case {
+        (($msg_size:expr, $streams:expr), $ex:expr) => {{
+            let name = concat!(
+                http2_connections!(),
+                " connection(s) opening ",
+                $streams,
+                " stream(s) sending requests of ",
                 $msg_size
+            );
+            (
+                name,
+                manage_case!(http2_connections!(), name, generic_rp, $ex),
             )
-        };
+        }};
     }
-
-    manage_tests(
-        generic_rp,
-        rps,
-        [(name!("0B"), manage_bench!(write().await))],
-    );
+    let params = [
+        case!(("64 bytes", 1), write(1, &[4; 64]).await),
+        case!(("64 bytes", 16), write(16, &[4; 64]).await),
+    ];
+    manage_cases(generic_rp, rps, params);
     Ok(())
 }
 
-async fn write() -> wtx::Result<()> {
-    let uri = &UriRef::new(SOCKET_STR);
+async fn write(streams: usize, payload: &[u8]) -> wtx::Result<()> {
     let mut http2 = Http2Tokio::connect(
-        ConnectParams::default(),
-        Http2Buffer::builder(StaticRng::default()).build(),
+        Http2Buffer::new(StaticRng::default()),
+        Http2Params::default(),
         TcpStream::connect(SOCKET_ADDR).await?,
     )
     .await?;
     let rrb = &mut ReqResBuffer::default();
-    let mut stream = http2.stream().await?;
-    let _res = stream
-        .send_req_recv_res(
-            Request::http2(&[], &Headers::new(4096), Method::Get, uri.to_ref()),
-            rrb,
-        )
-        .await;
+    rrb.uri.push_str(URI_STR).unwrap();
+    rrb.data.reserve(payload.len());
+    rrb.data.extend_from_slice(payload).unwrap();
+    for _ in 0..streams {
+        let mut stream = http2.stream().await?;
+        stream
+            .send_req(rrb.as_http2_request_ref(Method::Get))
+            .await?;
+        let _res = stream.recv_res(rrb).await?;
+        stream.send_reset(ErrorCode::NoError).await?;
+    }
+    http2.send_go_away(ErrorCode::NoError).await?;
     Ok(())
 }

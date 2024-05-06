@@ -11,7 +11,7 @@ async fn main() {
     "0.0.0.0:9000".parse().unwrap(),
     None,
     || (),
-    |err| println!("Connection error: {err:?}"),
+    |err| eprintln!("Connection error: {err:?}"),
     handle,
   )
   .await

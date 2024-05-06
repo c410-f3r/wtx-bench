@@ -36,7 +36,7 @@ impl ReportLine {
 
     pub(crate) fn implementation_specific(&mut self, (test, bench_stats): (&str, BenchStats)) {
         self.bench_stats = bench_stats;
-        self.test.try_push_str(test).unwrap();
+        self.test.push_str(test).unwrap();
     }
 
     pub(crate) fn push_to_string(&self, string: &mut String) {
