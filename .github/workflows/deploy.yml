@@ -17,12 +17,12 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2024-02-19
+          toolchain: nightly-2024-04-27
       - uses: Swatinem/rust-cache@v2
       - run: |
           cd evaluator
-          cargo build --release --features deploy
-          cargo run --release --features deploy -- "Shared GitHub runner"
+          cargo build --release --features all-protocols,deploy
+          cargo run --release --features all-protocols,deploy -- "Shared GitHub runner"
           cd ../site
           npm install
           npm run build

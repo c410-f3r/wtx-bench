@@ -1,21 +1,38 @@
 #[cfg(feature = "deploy")]
-macro_rules! connections {
+macro_rules! http2_connections {
+    () => {
+        8
+    };
+}
+#[cfg(feature = "deploy")]
+macro_rules! web_socket_connections {
     () => {
         64
     };
 }
+
 #[cfg(not(feature = "deploy"))]
-macro_rules! connections {
+macro_rules! http2_connections {
+    () => {
+        1
+    };
+}
+#[cfg(not(feature = "deploy"))]
+macro_rules! web_socket_connections {
     () => {
         1
     };
 }
 
-macro_rules! manage_bench {
-    ($ex:expr) => {{
-        let mut data = [0.0; connections!()];
+macro_rules! manage_case {
+    ($n:expr, $name:expr, $generic_rp:expr, $ex:expr) => {{
+        println!(
+            "***** Running case '{}' of implementation '{}' of protocol '{}' *****",
+            $name, &$generic_rp.implementation, &$generic_rp.protocol
+        );
+        let mut data = [0.0; $n];
         let mut set = tokio::task::JoinSet::new();
-        for idx in 0..connections!() {
+        for idx in 0..$n {
             let _handle = set.spawn(async move {
                 let now = wtx::misc::GenericTime::now().unwrap();
                 $ex?;
@@ -26,6 +43,6 @@ macro_rules! manage_bench {
             let (idx, value) = rslt.unwrap()?;
             data[idx] = value;
         }
-        BenchStats::new(&data)
+        crate::BenchStats::new(&data)
     }};
 }

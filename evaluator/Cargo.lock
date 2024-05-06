@@ -806,7 +806,7 @@ checksum = "bec47e5bfd1bff0eeaf6d8b485cc1074891a197ab4225d504cb7a1ab88b02bf0"
 [[package]]
 name = "wtx"
 version = "0.14.0"
-source = "git+https://github.com/c410-f3r/wtx?branch=http2#fe20f979de97ba4d3a086c9b385885cefa016df5"
+source = "git+https://github.com/c410-f3r/wtx#fed950f449239315d14c151349515891f6afb1fd"
 dependencies = [
  "ahash",
  "arrayvec",

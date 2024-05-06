@@ -29,8 +29,8 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
-    http::{Headers, Method, Request},
-    http2::{ConnectParams, Http2Buffer, Http2Tokio, ReqResBuffer},
+    http::Method,
+    http2::{Http2Buffer, Http2Params, Http2Tokio, ReqResBuffer},
     misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
     rng::StaticRng,
 };
@@ -39,6 +39,7 @@ const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 const CSV_HEADER: &str = "environment,protocol,test,implementation,timestamp,min,max,mean,sd\n";
 const SOCKET_ADDR: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 9000);
 const SOCKET_STR: &str = "127.0.0.1:9000";
+const URI_STR: &str = "http://127.0.0.1:9000";
 
 #[tokio::main]
 async fn main() {
@@ -93,13 +94,28 @@ async fn handle_cmd_output(cmd: &mut Command) {
     );
 }
 
+fn manage_cases(
+    mut generic_rp: ReportLine,
+    rps: &mut Vec<ReportLine>,
+    params: impl IntoIterator<Item = (&'static str, BenchStats)>,
+) {
+    for test_params in params {
+        generic_rp.implementation_specific(test_params);
+        rps.push(generic_rp.clone());
+        generic_rp.implementation_clear();
+    }
+}
+
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
-        let cp = ConnectParams::default();
-        let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
+        let mut rrb = ReqResBuffer::default();
+        rrb.uri
+            .push_str("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip")
+            .unwrap();
+        let uri = UriRef::new(&rrb.uri);
         let mut http2 = Http2Tokio::connect(
-            cp,
-            Http2Buffer::builder(StaticRng::default()).build(),
+            Http2Buffer::new(StaticRng::default()),
+            Http2Params::default(),
             TokioRustlsConnector::from_webpki_roots()
                 .http2()
                 .with_tcp_stream(
@@ -109,14 +125,11 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 .await?,
         )
         .await?;
-        let mut rrb = ReqResBuffer::default();
         let mut stream = http2.stream().await?;
-        let res = stream
-            .send_req_recv_res(
-                Request::http2(&[], &Headers::new(4096), Method::Get, uri.to_ref()),
-                &mut rrb,
-            )
+        stream
+            .send_req(rrb.as_http2_request_ref(Method::Get))
             .await?;
+        let res = stream.recv_res(&mut rrb).await?;
         decode_report(res.resource().unwrap().body())
     };
     let Ok(csv) = csv_fun().await else {
@@ -204,43 +217,35 @@ async fn manage_protocols_dir(
         let protocol_name = protocol.file_name().into_string().unwrap();
         match protocol_name.as_str() {
             "http2" => {
-                manage_protocol_dir(
-                    environment,
-                    Protocol::Http2,
-                    &protocol.path(),
-                    rps,
-                    timestamp,
-                    http2::bench_all,
-                )
-                .await
+                if cfg!(feature = "http2") {
+                    manage_protocol_dir(
+                        environment,
+                        Protocol::Http2,
+                        &protocol.path(),
+                        rps,
+                        timestamp,
+                        http2::bench_all,
+                    )
+                    .await
+                }
             }
             "web-socket" => {
-                manage_protocol_dir(
-                    environment,
-                    Protocol::WebSocket,
-                    &protocol.path(),
-                    rps,
-                    timestamp,
-                    web_socket::bench_all,
-                )
-                .await
+                if cfg!(feature = "web-socket") {
+                    manage_protocol_dir(
+                        environment,
+                        Protocol::WebSocket,
+                        &protocol.path(),
+                        rps,
+                        timestamp,
+                        web_socket::bench_all,
+                    )
+                    .await
+                }
             }
             _ => {
                 panic!("'{protocol_name}' is an unknown protocol");
             }
         }
-    }
-}
-
-fn manage_tests(
-    mut generic_rp: ReportLine,
-    rps: &mut Vec<ReportLine>,
-    tests_params: impl IntoIterator<Item = (&'static str, BenchStats)>,
-) {
-    for test_params in tests_params {
-        generic_rp.implementation_specific(test_params);
-        rps.push(generic_rp.clone());
-        generic_rp.implementation_clear();
     }
 }
 

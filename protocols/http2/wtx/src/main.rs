@@ -8,8 +8,8 @@ async fn main() {
     TokioHttp2::tokio_http2(
         "0.0.0.0:9000".parse().unwrap(),
         None,
-        |err| println!("Connection error: {err:?}"),
-        |err| println!("Request error: {err:?}"),
+        |err| eprintln!("Connection error: {err:?}"),
+        |err| eprintln!("Request error: {err:?}"),
         handle,
     )
     .await
