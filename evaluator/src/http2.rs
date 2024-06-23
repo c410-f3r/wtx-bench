@@ -47,7 +47,10 @@ async fn write(streams: usize, payload: &'static [u8]) -> wtx::Result<()> {
         let mut stream = http2.stream().await.unwrap();
         let _handle = set.spawn(async move {
             stream
-                .send_req(&mut sb.hpack_enc_buffer, Request::http2(payload,  Method::Get, uri))
+                .send_req(
+                    &mut sb.hpack_enc_buffer,
+                    Request::http2(payload, Method::Get, uri),
+                )
                 .await
                 .unwrap();
             let res = stream.recv_res(sb).await.unwrap();

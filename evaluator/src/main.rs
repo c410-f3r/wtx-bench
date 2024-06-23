@@ -109,7 +109,8 @@ fn manage_cases(
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
         let mut sb = Box::new(StreamBuffer::default());
-        sb.rrb.uri
+        sb.rrb
+            .uri
             .push_str("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip")
             .unwrap();
         let uri = UriRef::new(&sb.rrb.uri);
@@ -127,7 +128,10 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
         .await?;
         let mut stream = http2.stream().await?;
         stream
-            .send_req(&mut sb.hpack_enc_buffer, sb.rrb.as_http2_request(Method::Get))
+            .send_req(
+                &mut sb.hpack_enc_buffer,
+                sb.rrb.as_http2_request(Method::Get),
+            )
             .await?;
         let res = stream.recv_res(sb).await?;
         decode_report(&res.0.rrb.body)

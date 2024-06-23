@@ -1,6 +1,5 @@
 <script lang="ts">
   import { dateAndTime, firstDateOfLastDays, environmentStateParams } from '$lib/Utils';
-  import Csv from '$lib/Csv';
   import FirstPlacesChart from './FirstPlacesChart.svelte';
   import Header from './Header.svelte';
   import ManyDatesChart from './ManyDatesChart.svelte';
@@ -16,8 +15,8 @@
     PointElement,
     Tooltip
   } from 'chart.js';
-	import type { PageData } from './$types';
-  
+  import type { PageData } from './$types';
+
   Chart.register(
     ArcElement,
     CategoryScale,
