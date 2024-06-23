@@ -27,14 +27,14 @@ macro_rules! web_socket_connections {
 macro_rules! manage_case {
     ($n:expr, $name:expr, $generic_rp:expr, $ex:expr) => {{
         println!(
-            "***** Running case '{}' of implementation '{}' of protocol '{}' *****",
+            "***** Running case '{}'. Implementation '{}' of protocol '{}' *****",
             $name, &$generic_rp.implementation, &$generic_rp.protocol
         );
         let mut data = [0.0; $n];
         let mut set = tokio::task::JoinSet::new();
         for idx in 0..$n {
             let _handle = set.spawn(async move {
-                let now = wtx::misc::GenericTime::now().unwrap();
+                let now = wtx::misc::GenericTime::now();
                 $ex?;
                 Ok::<_, wtx::Error>((idx, now.elapsed().unwrap().as_millis() as f64))
             });

@@ -16,7 +16,8 @@
     PointElement,
     Tooltip
   } from 'chart.js';
-
+	import type { PageData } from './$types';
+  
   Chart.register(
     ArcElement,
     CategoryScale,
@@ -29,7 +30,7 @@
     Tooltip
   );
 
-  let { data }: { data: { csv: Csv } } = $props();
+  let { data }: { data: PageData } = $props();
 
   const firstEnvironment = data.csv.results.keys().next().value;
   const firstParams = environmentStateParams(data.csv, firstEnvironment);
