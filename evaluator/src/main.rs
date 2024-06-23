@@ -30,7 +30,7 @@ use tokio::{
 };
 use wtx::{
     http::Method,
-    http2::{Http2Buffer, Http2Params, Http2Tokio, ReqResBuffer},
+    http2::{Http2Buffer, Http2Params, Http2Tokio, StreamBuffer},
     misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
     rng::StaticRng,
 };
@@ -108,11 +108,12 @@ fn manage_cases(
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
-        let mut rrb = ReqResBuffer::default();
-        rrb.uri
+        let mut sb = Box::new(StreamBuffer::default());
+        sb.rrb
+            .uri
             .push_str("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip")
             .unwrap();
-        let uri = UriRef::new(&rrb.uri);
+        let uri = UriRef::new(&sb.rrb.uri);
         let mut http2 = Http2Tokio::connect(
             Http2Buffer::new(StaticRng::default()),
             Http2Params::default(),
@@ -127,10 +128,13 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
         .await?;
         let mut stream = http2.stream().await?;
         stream
-            .send_req(rrb.as_http2_request_ref(Method::Get))
+            .send_req(
+                &mut sb.hpack_enc_buffer,
+                sb.rrb.as_http2_request(Method::Get),
+            )
             .await?;
-        let res = stream.recv_res(&mut rrb).await?;
-        decode_report(res.resource().unwrap().body())
+        let res = stream.recv_res(sb).await?;
+        decode_report(&res.0.rrb.body)
     };
     let Ok(csv) = csv_fun().await else {
         println!("Couldn't find previous report file");
@@ -200,7 +204,7 @@ async fn manage_protocol_dir(
         podman_logs().await;
         podman_rm().await;
         if let Err(err) = rslt {
-            panic!("{err:?}");
+            panic!("Benchmark error: {err:?}");
         }
         sleep(Duration::from_secs(1)).await;
     }
@@ -294,9 +298,7 @@ async fn podman_run() {
 }
 
 fn timestamp() -> u64 {
-    GenericTime::now()
-        .unwrap()
-        .timestamp()
+    GenericTime::timestamp()
         .unwrap()
         .as_millis()
         .try_into()
