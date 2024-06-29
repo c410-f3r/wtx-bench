@@ -95,7 +95,7 @@ class Csv {
     test: string
   ): [firstPlacesChart | undefined, manyDatesChart] {
     const firstPlaces: firstPlacesChart = new Map();
-    const scores: manyDatesChart = [];
+    const scores: manyDatesChart = new Map();
 
     const manageColors = (implementation: string): string => {
       let value = firstPlaces.get(implementation);
@@ -116,26 +116,24 @@ class Csv {
       firstPlaces.set(implementation, value);
     };
 
-    const manageScore = (color: string, idx: number, name: string, value: number) => {
-      let score = scores[idx];
+    const manageScore = (color: string, name: string, value: number) => {
+      let score = scores.get(name);
       if (score == undefined) {
-        score = [name, color, []];
-        scores.push(score);
+        score = [color, []];
+        scores.set(name, score);
       }
-      score[2].push(value);
+      score[1].push(value);
     };
 
     const manyImplementationsManyTests = () => {
       const bestTests = new Map<string, [string, number]>();
       dates.forEach((date) => {
-        let idx = 0;
         this.results
           .get(environment)
           ?.get(date)
           ?.get(protocol)
           ?.forEach(({ geometricMean, tests }, implementationName) => {
-            manageScore(manageColors(implementationName), idx, implementationName, geometricMean);
-            idx = idx + 1;
+            manageScore(manageColors(implementationName), implementationName, geometricMean);
             tests.forEach((benchStats, testName) => {
               let bestTest = bestTests.get(testName);
               if (bestTest == undefined) {
@@ -155,15 +153,13 @@ class Csv {
 
     const manyImplementationsOneTest = () => {
       dates.forEach((date) => {
-        let idx = 0;
         this.results
           .get(environment)
           ?.get(date)
           ?.get(protocol)
           ?.forEach(({ tests }, implementationName) => {
             const benchStats = tests.get(test)!;
-            manageScore(manageColors(implementationName), idx, implementationName, benchStats.mean);
-            idx = idx + 1;
+            manageScore(manageColors(implementationName), implementationName, benchStats.mean);
           });
       });
     };
@@ -178,10 +174,8 @@ class Csv {
         if (localImplementation == undefined) {
           return;
         }
-        let idx = 0;
         localImplementation.tests.forEach((benchStats, testName) => {
-          manageScore(randomColor(), idx, testName, benchStats.mean);
-          idx = idx + 1;
+          manageScore(randomColor(), testName, benchStats.mean);
         });
       });
     };
@@ -196,7 +190,7 @@ class Csv {
         if (benchStats == undefined) {
           return;
         }
-        manageScore(manageColors(implementation), 0, test, benchStats.mean);
+        manageScore(manageColors(implementation), test, benchStats.mean);
       });
     };
 

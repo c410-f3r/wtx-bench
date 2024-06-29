@@ -8,7 +8,7 @@
 
   $effect(() => {
     const datasets = () => {
-      return dataset.map(([label, color, data]) => {
+      return Array.from(dataset.entries()).map(([label, [color, data]]) => {
         return {
           backgroundColor: color,
           borderColor: color,
