@@ -13,7 +13,7 @@ async fn main() {
         handle,
         || Ok(Http2Buffer::new(StdRng::default())),
         || Http2Params::default(),
-        || StreamBuffer::default(),
+        || Ok(StreamBuffer::default()),
         (|| {}, |_| {}, |_, stream| async move { Ok(stream) }),
     )
     .await
