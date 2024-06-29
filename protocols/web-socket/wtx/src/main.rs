@@ -17,7 +17,7 @@ async fn main() {
                 compression: (),
                 rng: StdRng::default(),
                 stream,
-                wsb: WebSocketBuffer::with_capacity(1024 * 16, 1024 * 16),
+                wsb: WebSocketBuffer::with_capacity(0, 1024 * 16),
             }
             .accept(|_| true)
             .await

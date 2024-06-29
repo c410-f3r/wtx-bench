@@ -21,7 +21,7 @@ jobs:
           cd evaluator
           cargo fmt --all -- --check
           cargo clippy
-          cargo run --release
+          cargo run --features web-socket --release
 
   site:
     runs-on: ubuntu-latest

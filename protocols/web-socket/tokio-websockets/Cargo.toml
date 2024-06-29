@@ -5,6 +5,6 @@ tokio-websockets = { default-features = false, features = ["sha1_smol", "server"
 
 [package]
 edition = "2021"
-name = "wtx"
+name = "tokio-websockets"
 publish = false
 version = "0.0.0"

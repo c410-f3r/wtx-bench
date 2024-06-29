@@ -1,0 +1,10 @@
+[dependencies]
+bytes = { default-features = false, version = "1.0" }
+ratchet_rs = { default-features = false, version = "1.0" }
+tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
+
+[package]
+edition = "2021"
+name = "ratchet"
+publish = false
+version = "0.0.0"

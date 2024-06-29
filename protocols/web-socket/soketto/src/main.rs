@@ -16,7 +16,7 @@ async fn main() {
             };
             server.send_response(&accept).await.unwrap();
             let (mut sender, mut receiver) = server.into_builder().finish();
-            let mut message = Vec::new();
+            let mut message = Vec::with_capacity(1024 * 16);
             loop {
                 message.clear();
                 match receiver.receive_data(&mut message).await {
