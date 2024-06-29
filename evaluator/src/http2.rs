@@ -26,8 +26,8 @@ pub(crate) async fn bench_all(
         }};
     }
     let params = [
-        //case!(("32 bytes", 1), write(1, &[4; 32]).await),
-        case!(("32 bytes", 2), write(8, &[4; 32]).await),
+        case!(("32 bytes", 1), write(1, &[4; 32]).await),
+        //case!(("32 bytes", 2), write(8, &[4; 32]).await),
     ];
     manage_cases(generic_rp, rps, params);
     Ok(())
