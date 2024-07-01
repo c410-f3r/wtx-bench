@@ -25,7 +25,7 @@
 
   const lastDaysInput = (elem: any) => {
     lastDays = elem.target.value;
-    protocol = protocolState(csv, environment, dates.at(-1));
+    protocol = protocolState();
   };
 
   let [protocols, implementations, tests] = $derived.by(() => {
