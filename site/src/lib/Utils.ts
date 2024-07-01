@@ -14,11 +14,11 @@ export function environmentStateParams(
   maxDays: number;
   protocol: string;
 } {
-  const { count, date } = oldestFromEnvironment(csv, environment);
+  const { count } = oldestFromEnvironment(csv, environment);
   return {
     lastDays: count,
     maxDays: Math.min(count, 7),
-    protocol: protocolState(csv, environment, date)
+    protocol: protocolState()
   };
 }
 
@@ -29,8 +29,8 @@ export function firstDateOfLastDays(lastDays: number): Date {
   return date;
 }
 
-export function protocolState(csv: Csv, environment: string, date: number): string {
-  return csv.results.get(environment)!.get(date)!.keys().next().value;
+export function protocolState(): string {
+  return "web-socket";
 }
 
 export function randomColor() {
