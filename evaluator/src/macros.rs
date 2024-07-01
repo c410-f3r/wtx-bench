@@ -1,7 +1,7 @@
 #[cfg(feature = "deploy")]
 macro_rules! http2_connections {
     () => {
-        8
+        1
     };
 }
 #[cfg(feature = "deploy")]
