@@ -1,4 +1,4 @@
-use crate::{manage_cases, report_line::ReportLine, SOCKET_ADDR, URI_STR};
+use crate::{data::string_bytes_8kib, manage_cases, report_line::ReportLine, SOCKET_ADDR, URI_STR};
 use tokio::net::TcpStream;
 use wtx::{
     http::{Method, Request},
@@ -25,41 +25,30 @@ pub(crate) async fn bench_all(
             )
         }};
     }
-    let params = [
-        case!(("32 bytes", 1), write(1, &[4; 32]).await),
-        //case!(("32 bytes", 2), write(8, &[4; 32]).await),
-    ];
+    let params = [case!(("8 KiB", 1), write(1, string_bytes_8kib()).await)];
     manage_cases(generic_rp, rps, params);
     Ok(())
 }
 
 async fn write(streams: usize, payload: &'static [u8]) -> wtx::Result<()> {
     let mut http2 = Http2Tokio::connect(
-        Http2Buffer::new(StaticRng::default()),
+        Http2Buffer::<Box<StreamBuffer>>::new(StaticRng::default()),
         Http2Params::default(),
         TcpStream::connect(SOCKET_ADDR).await?,
     )
     .await?;
-    let mut set = tokio::task::JoinSet::new();
     for _ in 0..streams {
-        let uri = UriRef::new(URI_STR);
         let mut sb = Box::new(StreamBuffer::default());
         let mut stream = http2.stream().await.unwrap();
-        let _handle = set.spawn(async move {
-            stream
-                .send_req(
-                    &mut sb.hpack_enc_buffer,
-                    Request::http2(payload, Method::Get, uri),
-                )
-                .await
-                .unwrap();
-            let res = stream.recv_res(sb).await.unwrap();
-            assert_eq!(res.0.rrb.body.as_ref(), payload);
-            stream.send_reset(Http2ErrorCode::NoError).await;
-        });
-    }
-    while let Some(rslt) = set.join_next().await {
-        rslt.unwrap();
+        stream
+            .send_req(
+                &mut sb.hpack_enc_buffer,
+                Request::http2(payload, Method::Get, UriRef::new(URI_STR)),
+            )
+            .await
+            .unwrap();
+        let res = stream.recv_res(sb).await.unwrap();
+        assert_eq!(res.0.rrb.body.as_ref(), payload);
     }
     http2.send_go_away(Http2ErrorCode::NoError).await;
     Ok(())
