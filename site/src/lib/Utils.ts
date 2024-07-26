@@ -1,6 +1,7 @@
 import type Csv from './Csv';
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
+const MAX_DAYS = 14;
 
 export function dateAndTime(date: Date): string {
   return date.toLocaleString();
@@ -16,8 +17,8 @@ export function environmentStateParams(
 } {
   const { count } = oldestFromEnvironment(csv, environment);
   return {
-    lastDays: count,
-    maxDays: Math.min(count, 7),
+    lastDays: Math.min(count, MAX_DAYS),
+    maxDays: MAX_DAYS,
     protocol: protocolState()
   };
 }

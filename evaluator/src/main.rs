@@ -17,7 +17,7 @@ use flate2::{
 };
 use std::{
     io::Read,
-    net::{Ipv4Addr, SocketAddrV4, ToSocketAddrs},
+    net::{Ipv4Addr, SocketAddrV4},
     path::{Path, PathBuf},
     str,
     time::Duration,
@@ -29,8 +29,8 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
-    http::Method,
-    http2::{Http2Buffer, Http2Params, Http2Tokio, StreamBuffer},
+    http::{Method, ReqResBuffer, ReqUri},
+    http2::{Http2Buffer, Http2Params, Http2Tokio},
     misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
     rng::StaticRng,
 };
@@ -108,33 +108,22 @@ fn manage_cases(
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
-        let mut sb = Box::new(StreamBuffer::default());
-        sb.rrb
-            .uri
-            .push_str("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip")
-            .unwrap();
-        let uri = UriRef::new(&sb.rrb.uri);
+        let rrb = ReqResBuffer::default();
+        let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
         let mut http2 = Http2Tokio::connect(
             Http2Buffer::new(StaticRng::default()),
             Http2Params::default(),
             TokioRustlsConnector::from_webpki_roots()
-                .http2()
-                .with_tcp_stream(
-                    uri.host().to_socket_addrs()?.next().unwrap(),
-                    uri.hostname(),
-                )
+                .with_tcp_stream(uri.host(), uri.hostname())
                 .await?,
         )
         .await?;
         let mut stream = http2.stream().await?;
         stream
-            .send_req(
-                &mut sb.hpack_enc_buffer,
-                sb.rrb.as_http2_request(Method::Get),
-            )
+            .send_req(rrb.as_http2_request(Method::Get), ReqUri::Param(&uri))
             .await?;
-        let res = stream.recv_res(sb).await?;
-        decode_report(&res.0.rrb.body)
+        let res = stream.recv_res(rrb).await?;
+        decode_report(res.0.body())
     };
     let Ok(csv) = csv_fun().await else {
         println!("Couldn't find previous report file");

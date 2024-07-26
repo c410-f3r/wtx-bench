@@ -1,5 +1,6 @@
 use tokio::net::TcpListener;
 use wtx::{
+    misc::Vector,
     rng::StdRng,
     web_socket::{
         handshake::{WebSocketAccept, WebSocketAcceptRaw},
@@ -22,7 +23,7 @@ async fn main() {
             .accept(|_| true)
             .await
             .unwrap();
-            let mut fb = FrameBufferVec::new(Vec::with_capacity(1024 * 16));
+            let mut fb = FrameBufferVec::new(Vector::with_capacity(1024 * 16).unwrap());
             loop {
                 let mut frame = ws.read_frame(&mut fb).await.unwrap();
                 match frame.op_code() {
