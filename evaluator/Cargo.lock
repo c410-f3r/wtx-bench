@@ -112,9 +112,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cl-aux"
-version = "4.4.0"
+version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f157ead6471a99b758bcf322b38e78a81c9b65434b9ba9afe79e60979584af3"
+checksum = "6250f1186b49cf971d8af9c1c450e6c7bdda29abb1826d4cf8f9e2d8e9c662f6"
 dependencies = [
  "tinyvec",
 ]
@@ -861,7 +861,7 @@ checksum = "bec47e5bfd1bff0eeaf6d8b485cc1074891a197ab4225d504cb7a1ab88b02bf0"
 [[package]]
 name = "wtx"
 version = "0.14.0"
-source = "git+https://github.com/c410-f3r/wtx#b8db30076bbd8b4e10456b4d4d005789728ca884"
+source = "git+https://github.com/c410-f3r/wtx#d6177e4f1a26a3e4ed918e1dda2942c697686d98"
 dependencies = [
  "ahash",
  "atoi",
