@@ -9,7 +9,6 @@
     environment = $bindable(),
     implementation = $bindable(),
     lastDays = $bindable(),
-    maxDays = $bindable(),
     protocol = $bindable(),
     test = $bindable()
   }: any = $props();
@@ -19,7 +18,6 @@
     const params = environmentStateParams(csv, localEnvironment);
     environment = localEnvironment;
     lastDays = params.lastDays;
-    maxDays = params.maxDays;
     protocol = params.protocol;
   };
 
@@ -108,7 +106,7 @@
             <input
               class="input"
               id="lastDays"
-              max={maxDays}
+              max={lastDays}
               min="1"
               oninput={lastDaysInput}
               style="width:80px;"

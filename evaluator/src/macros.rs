@@ -1,7 +1,7 @@
 #[cfg(feature = "deploy")]
-macro_rules! http2_connections {
+macro_rules! http2_framework_connections {
     () => {
-        1
+        32
     };
 }
 #[cfg(feature = "deploy")]
@@ -12,7 +12,7 @@ macro_rules! web_socket_connections {
 }
 
 #[cfg(not(feature = "deploy"))]
-macro_rules! http2_connections {
+macro_rules! http2_framework_connections {
     () => {
         1
     };

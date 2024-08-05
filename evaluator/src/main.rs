@@ -3,7 +3,7 @@ mod macros;
 
 mod bench_stats;
 mod data;
-mod http2;
+mod http2_framework;
 mod language;
 mod protocol;
 mod report_line;
@@ -32,14 +32,13 @@ use wtx::{
     http::{Method, ReqResBuffer, ReqUri},
     http2::{Http2Buffer, Http2Params, Http2Tokio},
     misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
-    rng::StaticRng,
+    rng::NoStdRng,
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 const CSV_HEADER: &str = "environment,protocol,test,implementation,timestamp,min,max,mean,sd\n";
 const SOCKET_ADDR: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 9000);
 const SOCKET_STR: &str = "127.0.0.1:9000";
-const URI_STR: &str = "http://127.0.0.1:9000";
 
 #[tokio::main]
 async fn main() {
@@ -111,7 +110,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
         let rrb = ReqResBuffer::default();
         let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
         let mut http2 = Http2Tokio::connect(
-            Http2Buffer::new(StaticRng::default()),
+            Http2Buffer::new(NoStdRng::default()),
             Http2Params::default(),
             TokioRustlsConnector::from_webpki_roots()
                 .with_tcp_stream(uri.host(), uri.hostname())
@@ -209,15 +208,15 @@ async fn manage_protocols_dir(
     while let Some(protocol) = iter.next_entry().await.unwrap() {
         let protocol_name = protocol.file_name().into_string().unwrap();
         match protocol_name.as_str() {
-            "http2" => {
-                if cfg!(feature = "http2") {
+            "http2-framework" => {
+                if cfg!(feature = "http2-framework") {
                     manage_protocol_dir(
                         environment,
-                        Protocol::Http2,
+                        Protocol::Http2Framework,
                         &protocol.path(),
                         rps,
                         timestamp,
-                        http2::bench_all,
+                        http2_framework::bench_all,
                     )
                     .await
                 }
