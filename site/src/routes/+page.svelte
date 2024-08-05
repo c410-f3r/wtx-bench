@@ -37,7 +37,6 @@
   let environment = $state(firstEnvironment);
   let implementation = $state('');
   let lastDays = $state(firstParams.lastDays);
-  let maxDays = $state(firstParams.maxDays);
   let protocol = $state(firstParams.protocol);
   let test = $state('');
 
@@ -80,7 +79,6 @@
   bind:environment
   bind:implementation
   bind:lastDays
-  {maxDays}
   bind:protocol
   bind:test
 />

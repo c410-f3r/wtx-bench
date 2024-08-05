@@ -7,11 +7,8 @@ use crate::{
 use tokio::net::TcpStream;
 use wtx::{
     misc::UriRef,
-    rng::StaticRng,
-    web_socket::{
-        handshake::{HeadersBuffer, WebSocketConnect, WebSocketConnectRaw},
-        FrameBufferVec, FrameMutVec, OpCode, WebSocketBuffer,
-    },
+    rng::NoStdRng,
+    web_socket::{FrameBufferVec, FrameMutVec, HeadersBuffer, OpCode, WebSocket, WebSocketBuffer},
 };
 
 pub(crate) async fn bench_all(
@@ -58,16 +55,16 @@ pub(crate) async fn bench_all(
 async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
     let fb = &mut FrameBufferVec::default();
     let uri = &UriRef::new(SOCKET_STR);
-    let mut ws = WebSocketConnectRaw {
-        compression: (),
+    let mut ws = WebSocket::connect(
+        (),
         fb,
-        headers_buffer: &mut HeadersBuffer::default(),
-        rng: StaticRng::default(),
-        stream: TcpStream::connect(SOCKET_ADDR).await?,
+        [],
+        &mut HeadersBuffer::default(),
+        NoStdRng::default(),
+        TcpStream::connect(SOCKET_ADDR).await?,
         uri,
-        wsb: WebSocketBuffer::default(),
-    }
-    .connect([])
+        WebSocketBuffer::default(),
+    )
     .await?
     .1;
     for _ in 0..msgs {

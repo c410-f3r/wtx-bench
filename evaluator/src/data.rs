@@ -1,5 +1,5 @@
 use std::sync::OnceLock;
-use wtx::rng::{Rng, StaticRng};
+use wtx::rng::{NoStdRng, Rng};
 
 pub(crate) fn string_bytes_8kib() -> &'static Vec<u8> {
     static POOL: OnceLock<Vec<u8>> = OnceLock::new();
@@ -20,7 +20,7 @@ pub(crate) fn string_bytes_2mib() -> &'static Vec<u8> {
 }
 
 fn string_bytes(slice: &mut [u8]) {
-    let mut rng = StaticRng::default();
+    let mut rng = NoStdRng::default();
     for elem in slice {
         loop {
             let byte = rng.u8();
