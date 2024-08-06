@@ -29,10 +29,8 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
-    http::{Method, ReqResBuffer, ReqUri},
-    http2::{Http2Buffer, Http2Params, Http2Tokio},
-    misc::{ArrayString, FnMutFut, GenericTime, TokioRustlsConnector, UriRef},
-    rng::NoStdRng,
+    http::{ClientFramework, ReqBuilder},
+    misc::{ArrayString, FnMutFut, GenericTime, UriRef},
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
@@ -107,26 +105,20 @@ fn manage_cases(
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
-        let rrb = ReqResBuffer::default();
-        let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
-        let mut http2 = Http2Tokio::connect(
-            Http2Buffer::new(NoStdRng::default()),
-            Http2Params::default(),
-            TokioRustlsConnector::from_webpki_roots()
-                .with_tcp_stream(uri.host(), uri.hostname())
-                .await?,
-        )
-        .await?;
-        let mut stream = http2.stream().await?;
-        stream
-            .send_req(rrb.as_http2_request(Method::Get), ReqUri::Param(&uri))
+        let res = ReqBuilder::get()
+            .send(
+                &ClientFramework::tokio_rustls(1).build(),
+                &UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip"),
+            )
             .await?;
-        let res = stream.recv_res(rrb).await?;
-        decode_report(res.0.body())
+        decode_report(res.rrd.body())
     };
-    let Ok(csv) = csv_fun().await else {
-        println!("Couldn't find previous report file");
-        return;
+    let csv = match csv_fun().await {
+        Err(err) => {
+            println!("Unable to fetch previous report file. Err: {err:?}");
+            return;
+        }
+        Ok(elem) => elem,
     };
     let lower_bound = Duration::from_millis(curr_timestamp) - _30_DAYS;
     for line in csv.split('\n').skip(1) {

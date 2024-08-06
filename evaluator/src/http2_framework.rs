@@ -1,8 +1,12 @@
 use crate::{manage_cases, report_line::ReportLine};
+use std::sync::LazyLock;
 use wtx::{
-    http::{ClientFramework, Header, KnownHeaderName, Method, ReqResBuffer},
+    http::{ClientFrameworkTokio, Header, KnownHeaderName, Method, ReqResBuffer},
     misc::Uri,
 };
+
+static CF: LazyLock<ClientFrameworkTokio> =
+    LazyLock::new(|| ClientFrameworkTokio::tokio(1).build());
 
 pub(crate) async fn bench_all(
     (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
@@ -22,16 +26,15 @@ pub(crate) async fn bench_all(
         ),
         case!("serialization", json(http2_framework_connections!()).await),
     ];
+    CF.close_all().await;
     manage_cases(generic_rp, rps, params);
     Ok(())
 }
 
 async fn hello_world(streams: usize) -> wtx::Result<()> {
-    let client = ClientFramework::tokio(1).build();
     let mut rrb = ReqResBuffer::default();
     for _ in 0..streams {
-        rrb.clear();
-        rrb = client
+        rrb = CF
             .send(
                 Method::Get,
                 rrb,
@@ -40,6 +43,7 @@ async fn hello_world(streams: usize) -> wtx::Result<()> {
             .await
             .unwrap()
             .rrd;
+        rrb.clear()
     }
     Ok(())
 }
@@ -56,7 +60,6 @@ async fn json(streams: usize) -> wtx::Result<()> {
         _sum: u128,
     }
 
-    let client = ClientFramework::tokio(1).build();
     let mut rrb = ReqResBuffer::default();
     rrb.headers_mut().set_max_bytes(64);
     for _ in 0..streams {
@@ -71,7 +74,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
             &[],
         )?;
         serde_json::to_writer(&mut rrb, &RequestElement { _n0: 4, _n1: 11 })?;
-        rrb = client
+        rrb = CF
             .send(Method::Post, rrb, &Uri::new("http://localhost:9000/json"))
             .await
             .unwrap()
