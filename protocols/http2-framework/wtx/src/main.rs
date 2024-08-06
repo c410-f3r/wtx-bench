@@ -9,7 +9,10 @@ async fn main() -> wtx::Result<()> {
         ("hello-world", get(hello_world)),
         ("json", post(json)),
     ));
-    ServerFramework::new(router).listen("0.0.0.0:9000").await
+    ServerFramework::new(router)
+        .max_recv_streams_num(u32::MAX)
+        .listen("0.0.0.0:9000", |_| {})
+        .await
 }
 
 #[derive(serde::Deserialize)]
