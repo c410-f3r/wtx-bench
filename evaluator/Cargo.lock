@@ -628,8 +628,8 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "wtx"
-version = "0.14.0"
-source = "git+https://github.com/c410-f3r/wtx#0ae3783ef81f6d31aa10ea89c1de2cb36db026a7"
+version = "0.16.0"
+source = "git+https://github.com/c410-f3r/wtx#3952b4b2695eeb67d30ef86e1dc89c88e0ca5908"
 dependencies = [
  "ahash",
  "atoi",
