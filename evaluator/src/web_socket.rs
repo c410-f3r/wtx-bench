@@ -6,13 +6,14 @@ use crate::{
 };
 use tokio::net::TcpStream;
 use wtx::{
+    misc::NoStdRng,
     misc::UriRef,
-    rng::NoStdRng,
     web_socket::{FrameBufferVec, FrameMutVec, HeadersBuffer, OpCode, WebSocket, WebSocketBuffer},
 };
 
 pub(crate) async fn bench_all(
-    (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
+    generic_rp: ReportLine,
+    rps: &mut Vec<ReportLine>,
 ) -> wtx::Result<()> {
     macro_rules! case {
         (($msgs:expr, $msg_size:expr, $frames:expr), $ex:expr) => {{

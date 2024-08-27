@@ -1,7 +1,7 @@
 use tokio::net::TcpListener;
 use wtx::{
+    misc::StdRng,
     misc::Vector,
-    rng::StdRng,
     web_socket::{FrameBufferVec, OpCode, WebSocket, WebSocketBuffer},
 };
 

@@ -3,6 +3,7 @@ mod macros;
 
 mod bench_stats;
 mod data;
+mod grpc;
 mod http2_framework;
 mod language;
 mod protocol;
@@ -29,8 +30,8 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
-    http::{ClientFramework, ReqBuilder},
-    misc::{ArrayString, FnMutFut, GenericTime, UriRef},
+    http::client_framework::{ClientFramework, ReqBuilder},
+    misc::{ArrayString, FnMutFut2, GenericTime, UriRef},
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
@@ -111,7 +112,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 &UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip"),
             )
             .await?;
-        decode_report(res.rrd.body())
+        decode_report(&res.rrd.data)
     };
     let csv = match csv_fun().await {
         Err(err) => {
@@ -155,7 +156,7 @@ async fn manage_protocol_dir(
     protocol_dir: &Path,
     rps: &mut Vec<ReportLine>,
     timestamp: u64,
-    mut fun: impl for<'any> FnMutFut<(ReportLine, &'any mut Vec<ReportLine>), wtx::Result<()>>,
+    mut fun: impl for<'any> FnMutFut2<ReportLine, &'any mut Vec<ReportLine>, Result = wtx::Result<()>>,
 ) {
     let mut iter = read_dir(protocol_dir).await.unwrap();
     while let Some(implementation_dir_entry) = iter.next_entry().await.unwrap() {
@@ -176,10 +177,10 @@ async fn manage_protocol_dir(
         println!(
             "***** Benchmarking implementation '{implementation}' of protocol '{protocol}' *****"
         );
-        let rslt = fun((
+        let rslt = fun(
             ReportLine::implementation_generic(environment, protocol, &implementation, timestamp),
             rps,
-        ))
+        )
         .await;
         podman_logs().await;
         podman_rm().await;
@@ -200,6 +201,19 @@ async fn manage_protocols_dir(
     while let Some(protocol) = iter.next_entry().await.unwrap() {
         let protocol_name = protocol.file_name().into_string().unwrap();
         match protocol_name.as_str() {
+            "grpc" => {
+                if cfg!(feature = "grpc") {
+                    manage_protocol_dir(
+                        environment,
+                        Protocol::Grpc,
+                        &protocol.path(),
+                        rps,
+                        timestamp,
+                        grpc::bench_all,
+                    )
+                    .await
+                }
+            }
             "http2-framework" => {
                 if cfg!(feature = "http2-framework") {
                     manage_protocol_dir(

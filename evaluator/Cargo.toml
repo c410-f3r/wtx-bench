@@ -1,13 +1,18 @@
+[build-dependencies]
+pb-rs = { default-features = false, version = "0.10" }
+
 [dependencies]
 flate2 = { default-features = false, features = ["rust_backend"], version = "1.0" }
+quick-protobuf = { default-features = false, version = "0.8" }
 serde = { default-features = false, features = ["derive"], version = "1.0" }
 serde_json = { default-features = false, features = ["alloc"], version = "1.0" }
 tokio = { default-features = false, features = ["fs", "io-std", "macros", "process", "rt-multi-thread"], version = "1.0" }
-wtx = { default-features = false, features = ["http-client-framework", "optimization", "pool", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
+wtx = { default-features = false, features = ["grpc", "http-client-framework", "optimization", "pool", "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], version = "0.17" }
 
 [features]
-all-protocols = ["http2-framework", "web-socket"]
+all-protocols = ["web-socket"]
 deploy = []
+grpc = []
 http2-framework = []
 web-socket = []
 

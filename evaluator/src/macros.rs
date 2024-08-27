@@ -1,4 +1,10 @@
 #[cfg(feature = "deploy")]
+macro_rules! grpc_connections {
+    () => {
+        32
+    };
+}
+#[cfg(feature = "deploy")]
 macro_rules! http2_framework_connections {
     () => {
         32
@@ -11,6 +17,12 @@ macro_rules! web_socket_connections {
     };
 }
 
+#[cfg(not(feature = "deploy"))]
+macro_rules! grpc_connections {
+    () => {
+        1
+    };
+}
 #[cfg(not(feature = "deploy"))]
 macro_rules! http2_framework_connections {
     () => {
