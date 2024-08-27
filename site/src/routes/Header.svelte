@@ -18,11 +18,13 @@
     const params = environmentStateParams(csv, localEnvironment);
     environment = localEnvironment;
     lastDays = params.lastDays;
+    maxLastDays = Math.max(maxLastDays, lastDays);
     protocol = params.protocol;
   };
 
   const lastDaysInput = (elem: any) => {
     lastDays = elem.target.value;
+    maxLastDays = Math.max(maxLastDays, lastDays);
     protocol = protocolState();
   };
 
@@ -51,6 +53,8 @@
     }
     return [protocols, implementations, tests];
   });
+
+  let maxLastDays = $state(lastDays);
 
   $effect(() => {
     const navbarBurgers = Array.prototype.slice.call(
@@ -106,7 +110,7 @@
             <input
               class="input"
               id="lastDays"
-              max={lastDays}
+              max={maxLastDays}
               min="1"
               oninput={lastDaysInput}
               style="width:80px;"

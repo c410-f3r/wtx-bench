@@ -1,7 +1,7 @@
 use crate::{manage_cases, report_line::ReportLine};
 use std::sync::LazyLock;
 use wtx::{
-    http::{ClientFrameworkTokio, Header, KnownHeaderName, Method, ReqResBuffer},
+    http::{client_framework::ClientFrameworkTokio, Header, KnownHeaderName, Method, ReqResBuffer},
     misc::Uri,
 };
 
@@ -9,7 +9,8 @@ static CF: LazyLock<ClientFrameworkTokio> =
     LazyLock::new(|| ClientFrameworkTokio::tokio(1).build());
 
 pub(crate) async fn bench_all(
-    (generic_rp, rps): (ReportLine, &mut Vec<ReportLine>),
+    generic_rp: ReportLine,
+    rps: &mut Vec<ReportLine>,
 ) -> wtx::Result<()> {
     macro_rules! case {
         ($name:expr, $ex:expr) => {
@@ -61,10 +62,10 @@ async fn json(streams: usize) -> wtx::Result<()> {
     }
 
     let mut rrb = ReqResBuffer::default();
-    rrb.headers_mut().set_max_bytes(64);
+    rrb.headers.set_max_bytes(64);
     for _ in 0..streams {
         rrb.clear();
-        rrb.headers_mut().push_front(
+        rrb.headers.push_front(
             Header {
                 is_sensitive: false,
                 is_trailer: false,
@@ -80,7 +81,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
             .unwrap()
             .rrd;
         assert_eq!(
-            serde_json::from_slice::<ResponseElement>(rrb.body())?._sum,
+            serde_json::from_slice::<ResponseElement>(&rrb.data)?._sum,
             15
         );
     }

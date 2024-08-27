@@ -1,7 +1,4 @@
-use wtx::http::{
-    server_framework::{get, post, Router, ServerFramework},
-    ReqResBuffer, Request, Response, StatusCode,
-};
+use wtx::http::server_framework::{get, post, Router, SerdeJson, ServerFramework};
 
 #[tokio::main]
 async fn main() -> wtx::Result<()> {
@@ -10,7 +7,6 @@ async fn main() -> wtx::Result<()> {
         ("json", post(json)),
     ));
     ServerFramework::new(router)
-        .max_recv_streams_num(u32::MAX)
         .listen("0.0.0.0:9000", |_| {})
         .await
 }
@@ -26,16 +22,11 @@ struct ResponseElement {
     _sum: u128,
 }
 
-async fn hello_world(mut req: Request<ReqResBuffer>) -> wtx::Result<Response<ReqResBuffer>> {
-    req.rrd.clear();
-    req.rrd.extend_body(b"Hello, World!")?;
-    Ok(req.into_response(StatusCode::Ok))
+async fn json(SerdeJson(de): SerdeJson<RequestElement>) -> wtx::Result<SerdeJson<ResponseElement>> {
+    let _sum = de._n0.wrapping_add(de._n1).into();
+    Ok(SerdeJson(ResponseElement { _sum }))
 }
 
-async fn json(mut req: Request<ReqResBuffer>) -> wtx::Result<Response<ReqResBuffer>> {
-    let de: RequestElement = simd_json::from_slice(req.rrd.body_mut())?;
-    req.rrd.clear();
-    let _sum = de._n0.wrapping_add(de._n1).into();
-    simd_json::to_writer(&mut req.rrd, &ResponseElement { _sum })?;
-    Ok(req.into_response(StatusCode::Ok))
+async fn hello_world() -> &'static str {
+    "Hello, World!"
 }

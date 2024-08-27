@@ -1,11 +1,10 @@
-FROM docker.io/library/debian:bookworm-slim AS build
+FROM docker.io/library/rust:1.80-slim-bookworm aS build
 ARG IMPLEMENTATION
 COPY . /$IMPLEMENTATION
 WORKDIR /$IMPLEMENTATION
-RUN apt-get update && apt-get install curl gcc -y
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly-2024-07-10 --profile minimal -y
+RUN apt-get update && apt-get install gcc protobuf-compiler -y
 ENV CARGO_PROFILE_RELEASE_LTO=true
-RUN RUSTFLAGS="-Ccodegen-units=1 -Copt-level=3 -Cpanic=abort -Cstrip=symbols -Ctarget-cpu=native" $HOME/.cargo/bin/cargo build --release
+RUN RUSTFLAGS="-Ccodegen-units=1 -Copt-level=3 -Cpanic=abort -Cstrip=symbols -Ctarget-cpu=native" cargo build --release
 
 FROM docker.io/library/debian:bookworm-slim
 ARG IMPLEMENTATION
