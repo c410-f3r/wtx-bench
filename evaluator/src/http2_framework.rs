@@ -62,18 +62,12 @@ async fn json(streams: usize) -> wtx::Result<()> {
     }
 
     let mut rrb = ReqResBuffer::default();
-    rrb.headers.set_max_bytes(64);
     for _ in 0..streams {
         rrb.clear();
-        rrb.headers.push_front(
-            Header {
-                is_sensitive: false,
-                is_trailer: false,
-                name: KnownHeaderName::ContentType.into(),
-                value: b"application/json",
-            },
-            &[],
-        )?;
+        rrb.headers.push_from_iter(Header::from_name_and_value(
+            KnownHeaderName::ContentType.into(),
+            ["application/json".as_bytes()],
+        ))?;
         serde_json::to_writer(&mut rrb, &RequestElement { _n0: 4, _n1: 11 })?;
         rrb = CF
             .send(Method::Post, rrb, &Uri::new("http://localhost:9000/json"))
