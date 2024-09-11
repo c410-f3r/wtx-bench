@@ -31,7 +31,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  const firstEnvironment = data.csv.results.keys().next().value;
+  const firstEnvironment = data.csv.results.keys().next().value!;
   const firstParams = environmentStateParams(data.csv, firstEnvironment);
 
   let environment = $state(firstEnvironment);

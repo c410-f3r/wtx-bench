@@ -15,7 +15,7 @@ jobs:
           components: clippy, rustfmt
           override: true
           profile: minimal
-          toolchain: nightly-2024-07-10
+          toolchain: nightly-2024-09-07
       - uses: Swatinem/rust-cache@v2
       - run: |
           cd evaluator

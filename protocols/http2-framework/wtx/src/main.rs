@@ -1,13 +1,15 @@
-use wtx::http::server_framework::{get, post, Router, SerdeJson, ServerFramework};
+use wtx::http::server_framework::{get, post, Router, SerdeJson, ServerFrameworkBuilder};
 
 #[tokio::main]
 async fn main() -> wtx::Result<()> {
     let router = Router::paths(wtx::paths!(
-        ("hello-world", get(hello_world)),
-        ("json", post(json)),
-    ));
-    ServerFramework::new(router)
-        .listen("0.0.0.0:9000", |_| {})
+        ("/hello-world", get(hello_world)),
+        ("/json", post(json)),
+    ))
+    .unwrap();
+    ServerFrameworkBuilder::new(router)
+        .without_aux()
+        .listen("0.0.0.0:9000", |a| eprintln!("{a}"))
         .await
 }
 
