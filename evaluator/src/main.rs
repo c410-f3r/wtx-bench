@@ -177,11 +177,17 @@ async fn manage_protocol_dir(
         println!(
             "***** Benchmarking implementation '{implementation}' of protocol '{protocol}' *****"
         );
-        let rslt = fun.call((
-            ReportLine::implementation_generic(environment, protocol, &implementation, timestamp),
-            rps,
-        ))
-        .await;
+        let rslt = fun
+            .call((
+                ReportLine::implementation_generic(
+                    environment,
+                    protocol,
+                    &implementation,
+                    timestamp,
+                ),
+                rps,
+            ))
+            .await;
         podman_logs().await;
         podman_rm().await;
         if let Err(err) = rslt {

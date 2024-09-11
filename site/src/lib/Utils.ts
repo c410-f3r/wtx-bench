@@ -30,7 +30,7 @@ export function firstDateOfLastDays(lastDays: number): Date {
 }
 
 export function protocolState(): string {
-  return "web-socket";
+  return 'web-socket';
 }
 
 export function randomColor() {
@@ -44,7 +44,7 @@ export function randomColor() {
 
 function oldestFromEnvironment(csv: Csv, environment: string): { count: number; date: number } {
   const iter = csv.results.get(environment)!.keys();
-  const firstDate = iter.next().value;
+  const firstDate = iter.next().value!;
   const now = firstDateOfLastDays(0);
   const countDiffFn = (date: number) => Math.ceil((now.getTime() - date) / ONE_DAY);
 
