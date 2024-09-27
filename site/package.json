@@ -21,7 +21,7 @@
     "cssnano": "^7.0.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-svelte": "^2.36.0-next.4",
+    "eslint-plugin-svelte": "^2.44.1",
     "globals": "^15.1.0",
     "postcss": "^8.4.38",
     "postcss-prune-var": "^1.1.2",
