@@ -30,7 +30,10 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
-    http::client_framework::{ClientFramework, ReqBuilder},
+    http::{
+        client_framework::{ClientFramework, ReqBuilder},
+        ReqResBuffer,
+    },
     misc::{ArrayString, FnMutFut, GenericTime, UriRef},
 };
 
@@ -44,7 +47,7 @@ async fn main() {
     let environment = std::env::args()
         .nth(1)
         .as_deref()
-        .unwrap_or("Teste")
+        .unwrap_or("Test")
         .try_into()
         .unwrap();
     let timestamp = timestamp();
@@ -106,7 +109,7 @@ fn manage_cases(
 
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
-        let res = ReqBuilder::get()
+        let res = ReqBuilder::get(ReqResBuffer::empty())
             .send(
                 &ClientFramework::tokio_rustls(1).build(),
                 &UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip"),
