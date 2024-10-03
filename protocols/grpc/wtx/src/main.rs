@@ -7,6 +7,7 @@ use wtx::{
         server_framework::{post, Router, ServerFrameworkBuilder, State},
         ReqResBuffer, StatusCode,
     },
+    misc::{simple_seed, Xorshift64},
 };
 
 #[tokio::main]
@@ -18,7 +19,7 @@ async fn main() -> wtx::Result<()> {
     .unwrap();
     ServerFrameworkBuilder::new(router)
         .with_req_aux(|| QuickProtobuf::default())
-        .listen("0.0.0.0:9000", |_| {})
+        .listen("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {})
         .await
 }
 

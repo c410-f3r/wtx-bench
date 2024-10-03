@@ -6,9 +6,9 @@ use crate::{
 };
 use tokio::net::TcpStream;
 use wtx::{
-    misc::NoStdRng,
     misc::UriRef,
-    web_socket::{FrameBufferVec, FrameMutVec, HeadersBuffer, OpCode, WebSocket, WebSocketBuffer},
+    misc::{simple_seed, Xorshift64},
+    web_socket::{FrameBufferVec, FrameMutVec, OpCode, WebSocket, WebSocketBuffer},
 };
 
 pub(crate) async fn bench_all(
@@ -58,16 +58,14 @@ async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()
     let uri = &UriRef::new(SOCKET_STR);
     let mut ws = WebSocket::connect(
         (),
-        fb,
         [],
-        &mut HeadersBuffer::default(),
-        NoStdRng::default(),
+        Xorshift64::from(simple_seed()),
         TcpStream::connect(SOCKET_ADDR).await?,
         uri,
         WebSocketBuffer::default(),
+        |_| wtx::Result::Ok(()),
     )
-    .await?
-    .1;
+    .await?;
     for _ in 0..msgs {
         let mut iter = payload.chunks(payload.len() / frames);
         let Some(first) = iter.next() else {

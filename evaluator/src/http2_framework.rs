@@ -33,7 +33,7 @@ pub(crate) async fn bench_all(
 }
 
 async fn hello_world(streams: usize) -> wtx::Result<()> {
-    let mut rrb = ReqResBuffer::default();
+    let mut rrb = ReqResBuffer::empty();
     for _ in 0..streams {
         rrb = CF
             .send(
@@ -61,7 +61,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
         _sum: u128,
     }
 
-    let mut rrb = ReqResBuffer::default();
+    let mut rrb = ReqResBuffer::empty();
     for _ in 0..streams {
         rrb.clear();
         rrb.headers.push_from_iter(Header::from_name_and_value(

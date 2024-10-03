@@ -1,4 +1,7 @@
-use wtx::http::server_framework::{get, post, Router, SerdeJson, ServerFrameworkBuilder};
+use wtx::{
+    http::server_framework::{get, post, Router, SerdeJson, ServerFrameworkBuilder},
+    misc::{simple_seed, Xorshift64},
+};
 
 #[tokio::main]
 async fn main() -> wtx::Result<()> {
@@ -9,7 +12,7 @@ async fn main() -> wtx::Result<()> {
     .unwrap();
     ServerFrameworkBuilder::new(router)
         .without_aux()
-        .listen("0.0.0.0:9000", |a| eprintln!("{a}"))
+        .listen("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {})
         .await
 }
 

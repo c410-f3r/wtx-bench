@@ -40,7 +40,7 @@ pub(crate) async fn bench_all(
 
 async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
     let mut client = Client::new(ClientFrameworkTokio::tokio(1).build(), QuickProtobuf);
-    let mut rrb = ReqResBuffer::default();
+    let mut rrb = ReqResBuffer::empty();
     for _ in 0..requests {
         rrb.uri
             .reset(format_args!("http://127.0.0.1:9000"))

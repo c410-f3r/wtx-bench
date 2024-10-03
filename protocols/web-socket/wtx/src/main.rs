@@ -1,7 +1,6 @@
 use tokio::net::TcpListener;
 use wtx::{
-    misc::StdRng,
-    misc::Vector,
+    misc::{simple_seed, Vector, Xorshift64},
     web_socket::{FrameBufferVec, OpCode, WebSocket, WebSocketBuffer},
 };
 
@@ -13,10 +12,10 @@ async fn main() {
         let _jh = tokio::spawn(async move {
             let mut ws = WebSocket::accept(
                 (),
-                StdRng::default(),
+                Xorshift64::from(simple_seed()),
                 stream,
-                WebSocketBuffer::with_capacity(0, 1024 * 16),
-                |_| true,
+                WebSocketBuffer::with_capacity(0, 1024 * 16).unwrap(),
+                |_| wtx::Result::Ok(()),
             )
             .await
             .unwrap();
