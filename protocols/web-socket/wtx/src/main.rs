@@ -14,7 +14,7 @@ async fn main() {
                 (),
                 Xorshift64::from(simple_seed()),
                 stream,
-                WebSocketBuffer::with_capacity(0, 1024 * 16).unwrap(),
+                WebSocketBuffer::with_capacity(0, 0, 0).unwrap(),
                 |_| wtx::Result::Ok(()),
             )
             .await
