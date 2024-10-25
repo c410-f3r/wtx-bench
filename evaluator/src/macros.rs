@@ -13,7 +13,7 @@ macro_rules! http2_framework_connections {
 #[cfg(feature = "deploy")]
 macro_rules! web_socket_connections {
     () => {
-        32
+        64
     };
 }
 

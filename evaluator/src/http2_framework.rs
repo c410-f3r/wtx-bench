@@ -75,7 +75,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
             .unwrap()
             .rrd;
         assert_eq!(
-            serde_json::from_slice::<ResponseElement>(&rrb.data)?._sum,
+            serde_json::from_slice::<ResponseElement>(&rrb.body)?._sum,
             15
         );
     }
