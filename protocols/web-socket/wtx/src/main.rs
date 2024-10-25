@@ -1,7 +1,7 @@
 use tokio::net::TcpListener;
 use wtx::{
-    misc::{simple_seed, Vector, Xorshift64},
-    web_socket::{FrameBufferVec, OpCode, WebSocket, WebSocketBuffer},
+    misc::{simple_seed, Xorshift64},
+    web_socket::{OpCode, WebSocket, WebSocketBuffer},
 };
 
 #[tokio::main]
@@ -14,17 +14,17 @@ async fn main() {
                 (),
                 Xorshift64::from(simple_seed()),
                 stream,
-                WebSocketBuffer::with_capacity(0, 1024 * 16).unwrap(),
+                WebSocketBuffer::with_capacity(0, 0, 0).unwrap(),
                 |_| wtx::Result::Ok(()),
             )
             .await
             .unwrap();
-            let mut fb = FrameBufferVec::new(Vector::with_capacity(1024 * 16).unwrap());
+            let (mut common, mut reader, mut writer) = ws.parts();
             loop {
-                let mut frame = ws.read_frame(&mut fb).await.unwrap();
+                let mut frame = reader.read_frame(&mut common).await.unwrap();
                 match frame.op_code() {
                     OpCode::Binary | OpCode::Text => {
-                        ws.write_frame(&mut frame).await.unwrap();
+                        writer.write_frame(&mut common, &mut frame).await.unwrap();
                     }
                     OpCode::Close => break,
                     _ => {}

@@ -115,7 +115,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
                 &UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip"),
             )
             .await?;
-        decode_report(&res.rrd.data)
+        decode_report(&res.rrd.body)
     };
     let csv = match csv_fun().await {
         Err(err) => {

@@ -54,7 +54,7 @@ async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
                 rrb,
             )
             .await?;
-        let generic_response: GenericResponse = client.des_from_res_bytes(&res.rrd.data).unwrap();
+        let generic_response: GenericResponse = client.des_from_res_bytes(&res.rrd.body).unwrap();
         assert_eq!(generic_response.generic_response_field0, payload);
         rrb = res.rrd;
     }

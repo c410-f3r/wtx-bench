@@ -12,7 +12,7 @@ async fn main() -> wtx::Result<()> {
     .unwrap();
     ServerFrameworkBuilder::new(router)
         .without_aux()
-        .listen("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {})
+        .listen_tokio("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {})
         .await
 }
 

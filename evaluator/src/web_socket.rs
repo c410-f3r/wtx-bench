@@ -6,9 +6,8 @@ use crate::{
 };
 use tokio::net::TcpStream;
 use wtx::{
-    misc::UriRef,
-    misc::{simple_seed, Xorshift64},
-    web_socket::{FrameBufferVec, FrameMutVec, OpCode, WebSocket, WebSocketBuffer},
+    misc::{simple_seed, UriRef, Xorshift64},
+    web_socket::{Frame, OpCode, WebSocket, WebSocketBuffer},
 };
 
 pub(crate) async fn bench_all(
@@ -54,7 +53,6 @@ pub(crate) async fn bench_all(
 }
 
 async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
-    let fb = &mut FrameBufferVec::default();
     let uri = &UriRef::new(SOCKET_STR);
     let mut ws = WebSocket::connect(
         (),
@@ -72,21 +70,21 @@ async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()
             panic!("No frames are being measured");
         };
         if let Some(last) = iter.next_back() {
-            ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Text, first)?)
+            ws.write_frame(&mut Frame::new_unfin(OpCode::Text, first.to_vec()))
                 .await?;
             for elem in iter {
-                ws.write_frame(&mut FrameMutVec::new_unfin(fb, OpCode::Continuation, elem)?)
+                ws.write_frame(&mut Frame::new_unfin(OpCode::Continuation, elem.to_vec()))
                     .await?;
             }
-            ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Continuation, last)?)
+            ws.write_frame(&mut Frame::new_fin(OpCode::Continuation, last.to_vec()))
                 .await?;
         } else {
-            ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Text, first)?)
+            ws.write_frame(&mut Frame::new_fin(OpCode::Text, first.to_vec()))
                 .await?;
         }
-        assert_eq!(ws.read_frame(fb).await?.fb().payload().len(), payload.len());
+        assert_eq!(ws.read_frame().await?.payload().len(), payload.len());
     }
-    ws.write_frame(&mut FrameMutVec::new_fin(fb, OpCode::Close, &[])?)
+    ws.write_frame(&mut Frame::new_fin(OpCode::Close, &mut []))
         .await?;
     Ok(())
 }
