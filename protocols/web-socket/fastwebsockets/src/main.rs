@@ -14,19 +14,19 @@ async fn main() {
                     service_fn(|mut req| async move {
                         let (response, fut) = upgrade::upgrade(&mut req)?;
                         tokio::task::spawn(async move {
-                            tokio::task::unconstrained(async move {
+                            async move {
                                 let mut ws = FragmentCollector::new(fut.await.unwrap());
                                 loop {
                                     let frame = ws.read_frame().await.unwrap();
                                     match frame.opcode {
-                                        OpCode::Close => break,
-                                        OpCode::Text | OpCode::Binary => {
+                                        OpCode::Binary |OpCode::Text => {
                                             ws.write_frame(frame).await.unwrap();
                                         }
+                                        OpCode::Close => break,
                                         _ => {}
                                     }
                                 }
-                            })
+                            }
                             .await
                         });
                         Ok::<_, WebSocketError>(response)

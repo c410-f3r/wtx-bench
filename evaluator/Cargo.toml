@@ -10,7 +10,7 @@ tokio = { default-features = false, features = ["fs", "io-std", "macros", "proce
 wtx = { default-features = false, features = ["grpc", "http-client-framework", "optimization", "pool", "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
 
 [features]
-all-protocols = ["http2-framework", "web-socket"]
+all-protocols = ["web-socket"]
 deploy = []
 grpc = []
 http2-framework = []

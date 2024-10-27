@@ -7,12 +7,13 @@ use wtx::{
 #[tokio::main]
 async fn main() {
     let listener = TcpListener::bind("0.0.0.0:9000").await.unwrap();
+    let xorshift = Xorshift64::from(simple_seed());
     loop {
         let (stream, _) = listener.accept().await.unwrap();
         let _jh = tokio::spawn(async move {
             let mut ws = WebSocket::accept(
                 (),
-                Xorshift64::from(simple_seed()),
+                xorshift,
                 stream,
                 WebSocketBuffer::with_capacity(0, 0, 0).unwrap(),
                 |_| wtx::Result::Ok(()),

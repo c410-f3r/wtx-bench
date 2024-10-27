@@ -1,5 +1,5 @@
 use bytes::BytesMut;
-use ratchet_rs::{Message, NoExtProvider, PayloadType, ProtocolRegistry, WebSocketConfig};
+use ratchet_rs::{Message, NoExtProvider, PayloadType, SubprotocolRegistry, WebSocketConfig};
 use tokio::net::TcpListener;
 
 #[tokio::main]
@@ -12,15 +12,14 @@ async fn main() {
                 stream,
                 WebSocketConfig::default(),
                 NoExtProvider,
-                ProtocolRegistry::default(),
+                SubprotocolRegistry::default(),
             )
             .await
             .unwrap();
             let mut upgraded = upgrader.upgrade().await.unwrap();
-            let mut buffer = BytesMut::with_capacity(1024 * 16);
+            let mut buffer = BytesMut::with_capacity(0);
             loop {
                 match upgraded.websocket.read(&mut buffer).await.unwrap() {
-                    Message::Close(_) => break,
                     Message::Binary => {
                         upgraded
                             .websocket
@@ -29,6 +28,7 @@ async fn main() {
                             .unwrap();
                         buffer.clear();
                     }
+                    Message::Close(_) => break,
                     Message::Ping(_) | Message::Pong(_) => {}
                     Message::Text => {
                         upgraded
