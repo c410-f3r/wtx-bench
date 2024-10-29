@@ -57,6 +57,7 @@ async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()
     let mut ws = WebSocket::connect(
         (),
         [],
+        false,
         Xorshift64::from(simple_seed()),
         TcpStream::connect(SOCKET_ADDR).await?,
         uri,
