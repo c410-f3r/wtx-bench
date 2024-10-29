@@ -13,6 +13,7 @@ async fn main() {
         let _jh = tokio::spawn(async move {
             let mut ws = WebSocket::accept(
                 (),
+                false,
                 xorshift,
                 stream,
                 WebSocketBuffer::with_capacity(0, 0, 0).unwrap(),
