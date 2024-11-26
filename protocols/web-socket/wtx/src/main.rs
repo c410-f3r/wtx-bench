@@ -21,7 +21,7 @@ async fn main() {
             )
             .await
             .unwrap();
-            let (mut common, mut reader, mut writer) = ws.parts();
+            let (mut common, mut reader, mut writer) = ws.parts_mut();
             loop {
                 let mut frame = reader.read_frame(&mut common).await.unwrap();
                 match frame.op_code() {
