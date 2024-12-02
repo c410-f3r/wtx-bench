@@ -17,7 +17,7 @@
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@types/eslint": "^9.6.0",
     "bulma": "^1.0.0",
-    "chart.js": "^4.4.2",
+    "chart.js": "^4.4.7",
     "cssnano": "^7.0.0",
 		"eslint": "^9.7.0",
     "eslint-config-prettier": "^9.1.0",
