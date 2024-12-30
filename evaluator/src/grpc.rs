@@ -43,7 +43,10 @@ async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
     let mut rrb = ReqResBuffer::empty();
     for _ in 0..requests {
         rrb.uri
-            .reset(format_args!("http://127.0.0.1:9000"))
+            .reset(|el| {
+                el.push_str("http://127.0.0.1:9000");
+                Ok(())
+            })
             .unwrap();
         let res = client
             .send_unary_req(
