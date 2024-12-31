@@ -1,0 +1,10 @@
+[dependencies]
+socket-flow = { default-features = false, version = "0.8" }
+futures = { default-features = false, version = "0.3" }
+tokio = { default-features = false, features = ["macros", "net", "rt-multi-thread"], version = "1.0" }
+
+[package]
+edition = "2021"
+name = "socket-flow"
+publish = false
+version = "0.0.0"
