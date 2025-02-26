@@ -1,18 +1,20 @@
 <script lang="ts">
-  import { Chart } from 'chart.js';
-  import type { firstPlacesChart } from '$lib/types';
+  import { Chart } from "chart.js";
+  import type { firstPlacesChart } from "$lib/types";
 
   let { dataset }: { dataset: firstPlacesChart } = $props();
 
-  let chart: Chart<'pie', number[], string> | undefined = undefined;
+  let chart: Chart<"pie", number[], string> | undefined = undefined;
 
   $effect(() => {
     const datasets = () => [
       {
-        backgroundColor: Array.from(dataset.values()).map((elem) => elem[0]),
+        backgroundColor: Array.from(dataset.values()).map((elem) =>
+          elem[0]
+        ),
         borderWidth: 0,
-        data: Array.from(dataset.values()).map((elem) => elem[1])
-      }
+        data: Array.from(dataset.values()).map((elem) => elem[1]),
+      },
     ];
     const labels = () => [...dataset.keys()];
 
@@ -21,9 +23,9 @@
       chart.update();
       return;
     }
-    chart = new Chart('firstPlacesChart', {
+    chart = new Chart("firstPlacesChart", {
       data: { datasets: datasets(), labels: labels() },
-      type: 'pie'
+      type: "pie",
     });
   });
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
-  import { environmentStateParams, protocolState } from '$lib/Utils';
+  import { environmentStateParams, protocolState } from "$lib/Utils";
 
   let {
     csv,
@@ -10,7 +10,7 @@
     implementation = $bindable(),
     lastDays = $bindable(),
     protocol = $bindable(),
-    test = $bindable()
+    test = $bindable(),
   }: any = $props();
 
   const environmentInput = (elem: any) => {
@@ -33,7 +33,9 @@
     let protocols = new Set();
     let tests = new Set();
 
-    for (const [localDate, localProtocols] of csv.results.get(environment)!) {
+    for (
+      const [localDate, localProtocols] of csv.results.get(environment)!
+    ) {
       if (!dates.includes(localDate)) {
         continue;
       }
@@ -58,14 +60,14 @@
 
   $effect(() => {
     const navbarBurgers = Array.prototype.slice.call(
-      document.querySelectorAll('.navbar-burger'),
-      0
+      document.querySelectorAll(".navbar-burger"),
+      0,
     );
     navbarBurgers.forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener("click", () => {
         const target = document.getElementById(el.dataset.target);
-        el.classList.toggle('is-active');
-        target?.classList.toggle('is-active');
+        el.classList.toggle("is-active");
+        target?.classList.toggle("is-active");
       });
     });
   });
@@ -79,7 +81,7 @@
         aria-label="menu"
         class="navbar-burger"
         data-target="wtx-navbar"
-        href={'#'}
+        href={"#"}
         role="button"
       >
         <span aria-hidden="true"></span>
@@ -113,7 +115,7 @@
               max={maxLastDays}
               min="1"
               oninput={lastDaysInput}
-              style="width:80px;"
+              style="width: 80px"
               type="number"
               value={lastDays}
             />

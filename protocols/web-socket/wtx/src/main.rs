@@ -1,6 +1,6 @@
 use tokio::net::TcpListener;
 use wtx::{
-    misc::{simple_seed, Xorshift64},
+    misc::{Xorshift64, simple_seed},
     web_socket::{OpCode, WebSocketAcceptor},
 };
 

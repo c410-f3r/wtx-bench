@@ -4,7 +4,7 @@ tokio = { default-features = false, features = ["macros", "net", "rt-multi-threa
 tokio-websockets = { default-features = false, features = ["nightly", "sha1_smol", "server", "simd"], version = "0.10" }
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "tokio-websockets"
 publish = false
 version = "0.0.0"

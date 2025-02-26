@@ -1,5 +1,5 @@
 use std::sync::OnceLock;
-use wtx::misc::{simple_seed, Rng, Xorshift64};
+use wtx::misc::{Rng, Xorshift64, simple_seed};
 
 pub(crate) fn string_bytes_8kib() -> &'static Vec<u8> {
     static POOL: OnceLock<Vec<u8>> = OnceLock::new();

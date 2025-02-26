@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { dateAndTime, firstDateOfLastDays, environmentStateParams } from '$lib/Utils';
-  import FirstPlacesChart from './FirstPlacesChart.svelte';
-  import Header from './Header.svelte';
-  import ManyDatesChart from './ManyDatesChart.svelte';
+  import {
+    dateAndTime,
+    environmentStateParams,
+    firstDateOfLastDays,
+  } from "$lib/Utils";
+  import FirstPlacesChart from "./FirstPlacesChart.svelte";
+  import Header from "./Header.svelte";
+  import ManyDatesChart from "./ManyDatesChart.svelte";
   import {
     ArcElement,
     CategoryScale,
@@ -13,9 +17,9 @@
     LineElement,
     PieController,
     PointElement,
-    Tooltip
-  } from 'chart.js';
-  import type { PageData } from './$types';
+    Tooltip,
+  } from "chart.js";
+  import type { PageData } from "./$types";
 
   Chart.register(
     ArcElement,
@@ -26,7 +30,7 @@
     LineElement,
     PieController,
     PointElement,
-    Tooltip
+    Tooltip,
   );
 
   let { data }: { data: PageData } = $props();
@@ -35,32 +39,40 @@
   const firstParams = environmentStateParams(data.csv, firstEnvironment);
 
   let environment = $state(firstEnvironment);
-  let implementation = $state('');
+  let implementation = $state("");
   let lastDays = $state(firstParams.lastDays);
   let protocol = $state(firstParams.protocol);
-  let test = $state('');
+  let test = $state("");
 
   let chartsData = $derived.by(() => {
-    return data.csv.chartsData(environment, dates, protocol, implementation, test);
+    return data.csv.chartsData(
+      environment,
+      dates,
+      protocol,
+      implementation,
+      test,
+    );
   });
   let dates = $derived.by(() => {
-    return [...data.csv.allDates(environment, firstDateOfLastDays(lastDays))].reverse();
+    return [
+      ...data.csv.allDates(environment, firstDateOfLastDays(lastDays)),
+    ].reverse();
   });
   let datesStrings = $derived.by(() => {
     return dates.map((date) => dateAndTime(new Date(date)));
   });
   let firstPlacesTitle = $derived.by(() => {
-    if (implementation === '' && test === '') {
-      return 'First places (All tests)';
+    if (implementation === "" && test === "") {
+      return "First places (All tests)";
     } else {
-      return 'First places';
+      return "First places";
     }
   });
   let scoresTitle = $derived.by(() => {
-    if (implementation === '' && test === '') {
-      return 'Completion time in milliseconds (Geometric mean of all tests)';
+    if (implementation === "" && test === "") {
+      return "Completion time in milliseconds (Geometric mean of all tests)";
     } else {
-      return 'Completion time in milliseconds';
+      return "Completion time in milliseconds";
     }
   });
 </script>

@@ -1,19 +1,19 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  assetsInclude: ['**/*.gzip'],
+  assetsInclude: ["**/*.gzip"],
   build: {
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          if (id.includes('chart.js')) {
-            return 'index_chartjs';
+          if (id.includes("chart.js")) {
+            return "index_chartjs";
           }
-          return 'index';
-        }
-      }
-    }
+          return "index";
+        },
+      },
+    },
   },
-  plugins: [sveltekit()]
+  plugins: [sveltekit()],
 });

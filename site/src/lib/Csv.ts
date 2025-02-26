@@ -1,6 +1,6 @@
-import BenchStats from './BenchStats';
-import { randomColor } from './Utils';
-import type { firstPlacesChart, manyDatesChart } from './types';
+import BenchStats from "./BenchStats";
+import { randomColor } from "./Utils";
+import type { firstPlacesChart, manyDatesChart } from "./types";
 
 type Dates = Map<number, Protocols>;
 type Environments = Map<string, Dates>;
@@ -17,9 +17,9 @@ class Csv {
   constructor(data: string) {
     this.results = new Map();
 
-    const lines = data.split('\n');
+    const lines = data.split("\n");
     lines.slice(1, -1).forEach((line) => {
-      const values = line.split(',');
+      const values = line.split(",");
       const environment = values[0];
       const protocol = values[1];
       const test = values[2];
@@ -60,7 +60,7 @@ class Csv {
           parseFloat(min),
           parseFloat(max),
           parseFloat(mean),
-          parseFloat(sd)
+          parseFloat(sd),
         );
         tests.geometricMean = tests.geometricMean + Math.log2(bench_stats.mean);
         tests.tests.set(test, bench_stats);
@@ -71,7 +71,8 @@ class Csv {
       environment.forEach((dates) => {
         dates.forEach((protocols) => {
           protocols.forEach((implementations) => {
-            const rslt = implementations.geometricMean / implementations.tests.size;
+            const rslt = implementations.geometricMean /
+              implementations.tests.size;
             implementations.geometricMean = Math.pow(2, rslt);
           });
         });
@@ -92,7 +93,7 @@ class Csv {
     dates: number[],
     protocol: string,
     implementation: string,
-    test: string
+    test: string,
   ): [firstPlacesChart | undefined, manyDatesChart] {
     const firstPlaces: firstPlacesChart = new Map();
     const scores: manyDatesChart = new Map();
@@ -133,7 +134,11 @@ class Csv {
           ?.get(date)
           ?.get(protocol)
           ?.forEach(({ geometricMean, tests }, implementationName) => {
-            manageScore(manageColors(implementationName), implementationName, geometricMean);
+            manageScore(
+              manageColors(implementationName),
+              implementationName,
+              geometricMean,
+            );
             tests.forEach((benchStats, testName) => {
               let bestTest = bestTests.get(testName);
               if (bestTest == undefined) {
@@ -159,7 +164,11 @@ class Csv {
           ?.get(protocol)
           ?.forEach(({ tests }, implementationName) => {
             const benchStats = tests.get(test)!;
-            manageScore(manageColors(implementationName), implementationName, benchStats.mean);
+            manageScore(
+              manageColors(implementationName),
+              implementationName,
+              benchStats.mean,
+            );
           });
       });
     };
@@ -170,7 +179,9 @@ class Csv {
         if (protocols === undefined) {
           return;
         }
-        const localImplementation = protocols.get(protocol)?.get(implementation);
+        const localImplementation = protocols.get(protocol)?.get(
+          implementation,
+        );
         if (localImplementation == undefined) {
           return;
         }
@@ -186,7 +197,8 @@ class Csv {
         if (protocols === undefined) {
           return;
         }
-        const benchStats = protocols.get(protocol)?.get(implementation)!.tests.get(test);
+        const benchStats = protocols.get(protocol)?.get(implementation)?.tests
+          .get(test);
         if (benchStats == undefined) {
           return;
         }
@@ -194,13 +206,13 @@ class Csv {
       });
     };
 
-    if (implementation === '' && test === '') {
+    if (implementation === "" && test === "") {
       manyImplementationsManyTests();
       return [firstPlaces, scores];
-    } else if (implementation === '' && test !== '') {
+    } else if (implementation === "" && test !== "") {
       manyImplementationsOneTest();
       return [undefined, scores];
-    } else if (implementation !== '' && test === '') {
+    } else if (implementation !== "" && test === "") {
       oneImplementationManyTests();
       return [undefined, scores];
     } else {

@@ -4,7 +4,7 @@ tokio = { default-features = false, features = ["macros", "rt-multi-thread"], ve
 tokio-tungstenite = { default-features = false, features = ["connect", "handshake"], version = "0.24" }
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "tokio-tungstenite"
 publish = false
 version = "0.0.0"

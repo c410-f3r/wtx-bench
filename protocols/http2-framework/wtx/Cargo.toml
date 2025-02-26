@@ -4,7 +4,7 @@ tokio = { default-features = false, features = ["macros", "net", "rt-multi-threa
 wtx = { default-features = false, features = ["http-server-framework", "nightly", "optimization", "serde_json", "tokio"], git = "https://github.com/c410-f3r/wtx" }
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "wtx"
 publish = false
 version = "0.0.0"
