@@ -24,6 +24,7 @@ jobs:
           cd evaluator
           cargo run --features all-protocols,deploy --release -- "Shared GitHub runner"
           cd ../site
+          deno install
           deno run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
