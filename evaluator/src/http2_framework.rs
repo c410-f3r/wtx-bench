@@ -1,12 +1,14 @@
 use crate::{manage_cases, report_line::ReportLine};
 use std::sync::LazyLock;
 use wtx::{
-    http::{client_framework::ClientFrameworkTokio, Header, KnownHeaderName, Method, ReqResBuffer},
+    http::{
+        Header, HttpClient, KnownHeaderName, Method, ReqResBuffer,
+        client_pool::{ClientPoolBuilder, ClientPoolTokio},
+    },
     misc::Uri,
 };
 
-static CF: LazyLock<ClientFrameworkTokio> =
-    LazyLock::new(|| ClientFrameworkTokio::tokio(1).build());
+static CF: LazyLock<ClientPoolTokio<fn()>> = LazyLock::new(|| ClientPoolBuilder::tokio(1).build());
 
 pub(crate) async fn bench_all(
     generic_rp: ReportLine,
@@ -33,14 +35,12 @@ pub(crate) async fn bench_all(
 }
 
 async fn hello_world(streams: usize) -> wtx::Result<()> {
+    let uri = &Uri::new("http://localhost:9000/hello-world");
     let mut rrb = ReqResBuffer::empty();
     for _ in 0..streams {
-        rrb = CF
-            .send(
-                Method::Get,
-                rrb,
-                &Uri::new("http://localhost:9000/hello-world"),
-            )
+        let mut client = &*CF;
+        rrb = client
+            .send_recv_single(Method::Get, rrb, uri)
             .await
             .unwrap()
             .rrd;
@@ -61,6 +61,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
         _sum: u128,
     }
 
+    let uri = &Uri::new("http://localhost:9000/json");
     let mut rrb = ReqResBuffer::empty();
     for _ in 0..streams {
         rrb.clear();
@@ -69,8 +70,9 @@ async fn json(streams: usize) -> wtx::Result<()> {
             ["application/json".as_bytes()],
         ))?;
         serde_json::to_writer(&mut rrb, &RequestElement { _n0: 4, _n1: 11 })?;
-        rrb = CF
-            .send(Method::Post, rrb, &Uri::new("http://localhost:9000/json"))
+        let mut client = &*CF;
+        rrb = client
+            .send_recv_single(Method::Post, rrb, uri)
             .await
             .unwrap()
             .rrd;

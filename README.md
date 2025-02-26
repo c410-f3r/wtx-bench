@@ -5,3 +5,5 @@
 Different benchmarks of different WEB technologies measured mainly to evaluate the performance of the [wtx](https://github.com/c410-f3r/wtx) project.
 
 Analyzes about the performance of the PostgreSQL client are available at <https://github.com/diesel-rs/metrics>.
+
+The current state is not reliable, as such, results shouldn't be taken too seriously.

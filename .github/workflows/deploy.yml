@@ -17,14 +17,14 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2024-11-22
+          toolchain: nightly-2025-02-23
+      - uses: denoland/setup-deno@v2
       - uses: Swatinem/rust-cache@v2
       - run: |
           cd evaluator
           cargo run --features all-protocols,deploy --release -- "Shared GitHub runner"
           cd ../site
-          npm install
-          npm run build
+          deno run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

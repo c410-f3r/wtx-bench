@@ -1,8 +1,8 @@
 use crate::{
+    SOCKET_ADDR, SOCKET_STR,
     data::{string_bytes_2mib, string_bytes_8kib},
     manage_cases,
     report_line::ReportLine,
-    SOCKET_ADDR, SOCKET_STR,
 };
 use tokio::net::TcpStream;
 use wtx::{

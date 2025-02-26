@@ -15,7 +15,7 @@ jobs:
           components: clippy, rustfmt
           override: true
           profile: minimal
-          toolchain: nightly-2024-11-22
+          toolchain: nightly-2025-02-23
       - uses: Swatinem/rust-cache@v2
       - run: |
           cd evaluator
@@ -26,11 +26,11 @@ jobs:
   site:
     runs-on: ubuntu-latest
     steps:
+      - uses: denoland/setup-deno@v2
       - uses: actions/checkout@v4
       - run: |
           cd site
-          npm ci
-          npm run format
-          npm run check
-          npm run lint
-          npm run build
+          deno install
+          deno fmt --check --unstable-component
+          deno lint
+          deno run build

@@ -3,7 +3,7 @@ tokio = { default-features = false, features = ["macros", "rt-multi-thread"], ve
 wtx = { default-features = false, features = ["optimization", "pool", "tokio", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "wtx"
 publish = false
 version = "0.0.0"

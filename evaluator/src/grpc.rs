@@ -7,8 +7,9 @@ use grpc_bindings::wtx::{GenericRequest, GenericResponse};
 use std::borrow::Cow;
 use wtx::{
     data_transformation::dnsn::QuickProtobuf,
-    grpc::Client,
-    http::{client_framework::ClientFrameworkTokio, ReqResBuffer},
+    grpc::GrpcClient,
+    http::{ReqResBuffer, client_pool::ClientPoolBuilder},
+    misc::UriRef,
 };
 
 pub(crate) async fn bench_all(
@@ -39,25 +40,23 @@ pub(crate) async fn bench_all(
 }
 
 async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
-    let mut client = Client::new(ClientFrameworkTokio::tokio(1).build(), QuickProtobuf);
+    let http_client = ClientPoolBuilder::tokio(1).build();
     let mut rrb = ReqResBuffer::empty();
     for _ in 0..requests {
-        rrb.uri
-            .reset(|el| {
-                el.push_str("http://127.0.0.1:9000");
-                Ok(())
-            })
-            .unwrap();
-        let res = client
+        let http_client = &mut http_client.lock(&rrb.uri.to_ref()).await?.client;
+        let mut grpc_client = GrpcClient::new(http_client, QuickProtobuf);
+        let res = grpc_client
             .send_unary_req(
-                ("wtx", "GenericService", "generic_method"),
                 GenericRequest {
                     generic_request_field0: Cow::Borrowed(payload),
                 },
                 rrb,
+                &UriRef::new("http://127.0.0.1:9000/wtx.GenericService/generic_method"),
             )
             .await?;
-        let generic_response: GenericResponse = client.des_from_res_bytes(&res.rrd.body).unwrap();
+        let generic_response: GenericResponse = grpc_client
+            .des_from_res_bytes(&mut res.rrd.body.as_slice())
+            .unwrap();
         assert_eq!(generic_response.generic_response_field0, payload);
         rrb = res.rrd;
     }

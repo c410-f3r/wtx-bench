@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { Chart } from 'chart.js';
-  import type { manyDatesChart } from '$lib/types';
+  import { Chart } from "chart.js";
+  import type { manyDatesChart } from "$lib/types";
 
-  let { dataset, labels }: { dataset: manyDatesChart; labels: string[] } = $props();
+  let { dataset, labels }: { dataset: manyDatesChart; labels: string[] } =
+    $props();
 
-  let chart: Chart<'line', number[], string> | undefined = undefined;
+  let chart: Chart<"line", number[], string> | undefined = undefined;
 
   $effect(() => {
     const datasets = () => {
@@ -15,7 +16,7 @@
           data,
           fill: false,
           label,
-          tension: 0.1
+          tension: 0.1,
         };
       });
     };
@@ -25,9 +26,9 @@
       chart.update();
       return;
     }
-    chart = new Chart('manyDatesChart', {
+    chart = new Chart("manyDatesChart", {
       data: { datasets: datasets(), labels },
-      type: 'line'
+      type: "line",
     });
   });
 </script>
