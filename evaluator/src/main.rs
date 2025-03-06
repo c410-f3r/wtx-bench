@@ -39,6 +39,8 @@ const CSV_HEADER: &str = "environment,protocol,test,implementation,timestamp,min
 const SOCKET_ADDR: SocketAddrV4 = SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 9000);
 const SOCKET_STR: &str = "127.0.0.1:9000";
 
+static IGNORED_IMPLEMENTATIONS: &[&str] = &["socket-flow"];
+
 #[tokio::main]
 async fn main() {
     let environment = std::env::args()
@@ -160,7 +162,11 @@ async fn manage_protocol_dir(
     let mut iter = read_dir(protocol_dir).await.unwrap();
     while let Some(implementation_dir_entry) = iter.next_entry().await.unwrap() {
         let mut path = implementation_dir_entry.path();
-        let implementation = path.file_name().unwrap().to_str().unwrap().to_owned();
+        let implementation = &path.file_name().unwrap().to_str().unwrap().to_owned();
+        std::dbg!(implementation);
+        if IGNORED_IMPLEMENTATIONS.contains(&implementation.as_str()) {
+            continue;
+        }
         let bytes: &[u8] = match Language::infer_from_dir(&path).await {
             Language::Go => include_bytes!("../assets/go.Dockerfile"),
             Language::Javascript => include_bytes!("../assets/javascript.Dockerfile"),

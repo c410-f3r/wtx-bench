@@ -11,5 +11,5 @@ async fn echo_text(ctx: WebSocketContext<'_>) -> WebSocket {
 
 #[tokio::main]
 async fn main() {
-    Ohkami::new(("/".GET(echo_text))).howl("0.0.0.0:9000").await
+    Ohkami::new("/".GET(echo_text)).howl("0.0.0.0:9000").await
 }
