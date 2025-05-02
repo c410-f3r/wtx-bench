@@ -3,8 +3,9 @@ pb-rs = { default-features = false, version = "0.10" }
 
 [dependencies]
 quick-protobuf = { default-features = false, version = "0.8" }
+rand_chacha = { default-features = false, features = ["os_rng"], version = "0.9" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
-wtx = { default-features = false, features = ["grpc", "nightly", "optimization", "quick-protobuf", "tokio"], git = "https://github.com/c410-f3r/wtx" }
+wtx = { default-features = false, features = ["getrandom", "grpc-server", "nightly", "optimization", "quick-protobuf", "rand_chacha", "tokio"], git = "https://github.com/c410-f3r/wtx" }
 
 [package]
 edition = "2024"

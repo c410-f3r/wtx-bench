@@ -30,8 +30,10 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
+    collection::ArrayString,
     http::{HttpClient, Method, ReqResBuffer, client_pool::ClientPoolBuilder},
-    misc::{ArrayString, FnMutFut, GenericTime, UriRef},
+    misc::{FnMutFut, UriRef},
+    time::Instant,
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
@@ -303,7 +305,7 @@ async fn podman_run() {
 }
 
 fn timestamp() -> u64 {
-    GenericTime::timestamp()
+    Instant::now_timestamp()
         .unwrap()
         .as_millis()
         .try_into()
