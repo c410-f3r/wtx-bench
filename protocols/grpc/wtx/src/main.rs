@@ -1,13 +1,13 @@
 pub mod grpc_bindings;
 
+use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 use wtx::{
     data_transformation::dnsn::QuickProtobuf,
     grpc::GrpcManager,
     http::{
-        server_framework::{post, Router, ServerFrameworkBuilder, State},
         ReqResBuffer, StatusCode,
+        server_framework::{Router, ServerFrameworkBuilder, State, post},
     },
-    misc::{simple_seed, Xorshift64},
 };
 
 #[tokio::main]
@@ -17,9 +17,9 @@ async fn main() -> wtx::Result<()> {
         post(wtx_generic_service_generic_method)
     )))
     .unwrap();
-    ServerFrameworkBuilder::new(router)
-        .with_req_aux(|| QuickProtobuf::default())
-        .listen_tokio("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {})
+    ServerFrameworkBuilder::new(ChaCha20Rng::try_from_os_rng()?, router)
+        .with_stream_aux(|_| QuickProtobuf::default())
+        .tokio("0.0.0.0:9000", |_| {}, |_| Ok(()), |_| {})
         .await
 }
 

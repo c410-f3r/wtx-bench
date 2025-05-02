@@ -8,7 +8,8 @@ use wtx::{
     misc::Uri,
 };
 
-static CF: LazyLock<ClientPoolTokio<fn()>> = LazyLock::new(|| ClientPoolBuilder::tokio(1).build());
+static CF: LazyLock<ClientPoolTokio<fn(&()), (), ()>> =
+    LazyLock::new(|| ClientPoolBuilder::tokio(1).build());
 
 pub(crate) async fn bench_all(
     generic_rp: ReportLine,
@@ -67,7 +68,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
         rrb.clear();
         rrb.headers.push_from_iter(Header::from_name_and_value(
             KnownHeaderName::ContentType.into(),
-            ["application/json".as_bytes()],
+            ["application/json"],
         ))?;
         serde_json::to_writer(&mut rrb, &RequestElement { _n0: 4, _n1: 11 })?;
         let mut client = &*CF;

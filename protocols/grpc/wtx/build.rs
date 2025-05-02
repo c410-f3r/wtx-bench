@@ -1,6 +1,6 @@
-use pb_rs::{types::FileDescriptor, ConfigBuilder};
+use pb_rs::{ConfigBuilder, types::FileDescriptor};
 use std::{
-    fs::{remove_dir_all, DirBuilder},
+    fs::{DirBuilder, remove_dir_all},
     path::Path,
 };
 

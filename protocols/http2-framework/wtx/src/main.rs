@@ -1,7 +1,5 @@
-use wtx::{
-    http::server_framework::{get, post, Router, SerdeJson, ServerFrameworkBuilder},
-    misc::{simple_seed, Xorshift64},
-};
+use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
+use wtx::http::server_framework::{Router, SerdeJson, ServerFrameworkBuilder, get, post};
 
 #[tokio::main]
 async fn main() -> wtx::Result<()> {
@@ -10,9 +8,9 @@ async fn main() -> wtx::Result<()> {
         ("/json", post(json)),
     ))
     .unwrap();
-    ServerFrameworkBuilder::new(router)
+    ServerFrameworkBuilder::new(ChaCha20Rng::try_from_os_rng()?, router)
         .without_aux()
-        .tokio("0.0.0.0:9000", Xorshift64::from(simple_seed()), |_| {}, |_| Ok(()))
+        .tokio("0.0.0.0:9000", |_| {}, |_| Ok(()), |_| {})
         .await
 }
 
