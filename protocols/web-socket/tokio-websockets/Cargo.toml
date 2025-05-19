@@ -1,7 +1,7 @@
 [dependencies]
 futures-util = { default-features = false, features = ["sink"], version = "0.3" }
 tokio = { default-features = false, features = ["macros", "net", "rt-multi-thread"], version = "1.0" }
-tokio-websockets = { default-features = false, features = ["nightly", "sha1_smol", "server", "simd"], version = "0.10" }
+tokio-websockets = { default-features = false, features = ["sha1_smol", "server", "simd"], version = "0.11" }
 
 [package]
 edition = "2024"

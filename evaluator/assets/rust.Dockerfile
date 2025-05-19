@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.85-slim-bookworm aS build
+FROM docker.io/library/rust:1.87-slim-bookworm aS build
 ARG IMPLEMENTATION
 COPY . /$IMPLEMENTATION
 WORKDIR /$IMPLEMENTATION

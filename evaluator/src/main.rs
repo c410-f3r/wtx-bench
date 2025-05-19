@@ -30,10 +30,10 @@ use tokio::{
     time::sleep,
 };
 use wtx::{
+    calendar::Instant,
     collection::ArrayString,
     http::{HttpClient, Method, ReqResBuffer, client_pool::ClientPoolBuilder},
     misc::{FnMutFut, UriRef},
-    time::Instant,
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
@@ -165,7 +165,6 @@ async fn manage_protocol_dir(
     while let Some(implementation_dir_entry) = iter.next_entry().await.unwrap() {
         let mut path = implementation_dir_entry.path();
         let implementation = &path.file_name().unwrap().to_str().unwrap().to_owned();
-        std::dbg!(implementation);
         if IGNORED_IMPLEMENTATIONS.contains(&implementation.as_str()) {
             continue;
         }
@@ -178,7 +177,7 @@ async fn manage_protocol_dir(
         write_file(bytes, &path).await;
         println!("***** Building implementation '{implementation}' of protocol '{protocol}' *****");
         podman_rm().await;
-        podman_build(&implementation, protocol).await;
+        podman_build(implementation, protocol).await;
         podman_run().await;
         sleep(Duration::from_secs(1)).await;
         println!(
@@ -189,7 +188,7 @@ async fn manage_protocol_dir(
                 ReportLine::implementation_generic(
                     environment,
                     protocol,
-                    &implementation,
+                    implementation,
                     timestamp,
                 ),
                 rps,
@@ -305,7 +304,7 @@ async fn podman_run() {
 }
 
 fn timestamp() -> u64 {
-    Instant::now_timestamp()
+    Instant::now_timestamp(0)
         .unwrap()
         .as_millis()
         .try_into()

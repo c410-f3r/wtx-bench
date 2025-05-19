@@ -11,7 +11,7 @@ async fn main() {
     loop {
         let (conn, _) = listener.accept().await.unwrap();
         tokio::spawn(async move {
-            let mut server = unsafe {
+            let (_, mut server) = unsafe {
                 ServerBuilder::new()
                     .config(Config::default().frame_size(usize::MAX))
                     .limits(Limits::unlimited())

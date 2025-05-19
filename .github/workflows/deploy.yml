@@ -17,7 +17,7 @@ jobs:
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2025-02-23
+          toolchain: nightly-2025-05-12
       - uses: denoland/setup-deno@v2
       - uses: Swatinem/rust-cache@v2
       - run: |

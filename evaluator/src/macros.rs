@@ -46,7 +46,7 @@ macro_rules! manage_case {
         let mut set = tokio::task::JoinSet::new();
         for idx in 0..$n {
             let _handle = set.spawn(async move {
-                let now = wtx::time::Instant::now();
+                let now = wtx::calendar::Instant::now();
                 $ex?;
                 Ok::<_, wtx::Error>((idx, now.elapsed().unwrap().as_millis() as f64))
             });
