@@ -1482,7 +1482,7 @@ dependencies = [
 [[package]]
 name = "wtx"
 version = "0.33.0"
-source = "git+https://github.com/c410-f3r/wtx#177ca40b9a512c865a3d269a4c4b2f95687d310d"
+source = "git+https://github.com/c410-f3r/wtx#70ff6095c6746678eff0fb808306b373079ec119"
 dependencies = [
  "aes-gcm",
  "argon2",
