@@ -7,7 +7,7 @@ quick-protobuf = { default-features = false, version = "0.8" }
 serde = { default-features = false, features = ["derive"], version = "1.0" }
 serde_json = { default-features = false, features = ["alloc"], version = "1.0" }
 tokio = { default-features = false, features = ["fs", "io-std", "macros", "process", "rt-multi-thread"], version = "1.44" }
-wtx = { default-features = false, features = ["grpc-client", "http-client-pool", "optimization", "pool", "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], git = "https://github.com/c410-f3r/wtx" }
+wtx = { default-features = false, features = ["grpc-client", "http-client-pool", "optimization", "pool", "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], version = "0.34" }
 
 [features]
 all-protocols = ["web-socket"]
