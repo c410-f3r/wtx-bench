@@ -1,9 +1,9 @@
 [dependencies]
-ohkami = { default-features = false, features = ["rt_tokio", "ws"], version = "0.21" }
+ohkami = { default-features = false, features = ["rt_tokio", "ws"], version = "0.23" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
 
 [package]
 edition = "2024"
-name = "wtx"
+name = "ohkami"
 publish = false
 version = "0.0.0"
