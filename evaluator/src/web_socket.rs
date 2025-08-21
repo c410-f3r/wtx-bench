@@ -4,10 +4,10 @@ use crate::{
     manage_cases,
     report_line::ReportLine,
 };
+use wtx::web_socket::WebSocketPayloadOrigin;
 use tokio::net::TcpStream;
 use wtx::{
-    misc::UriRef,
-    web_socket::{Frame, OpCode, WebSocketConnector},
+    collection::Vector, misc::UriRef, web_socket::{Frame, OpCode, WebSocketConnector}
 };
 
 pub(crate) async fn bench_all(
@@ -54,6 +54,7 @@ pub(crate) async fn bench_all(
 
 async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
     let uri = &UriRef::new(SOCKET_STR);
+    let mut buffer = Vector::new();
     let mut ws = WebSocketConnector::default()
         .connect(TcpStream::connect(SOCKET_ADDR).await?, uri)
         .await?;
@@ -75,7 +76,7 @@ async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()
             ws.write_frame(&mut Frame::new_fin(OpCode::Text, first.to_vec()))
                 .await?;
         }
-        assert_eq!(ws.read_frame().await?.payload().len(), payload.len());
+        assert_eq!(ws.read_frame(&mut buffer, WebSocketPayloadOrigin::Adaptive).await?.payload().len(), payload.len());
     }
     ws.write_frame(&mut Frame::new_fin(OpCode::Close, &mut []))
         .await?;
