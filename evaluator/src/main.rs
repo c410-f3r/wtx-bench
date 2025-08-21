@@ -32,7 +32,7 @@ use tokio::{
 use wtx::{
     calendar::Instant,
     collection::ArrayStringU8,
-    http::{client_pool::ClientPoolBuilder, HttpClient, Method, ReqResBuffer},
+    http::{HttpClient, Method, ReqResBuffer, client_pool::ClientPoolBuilder},
     misc::{FnMutFut, UriRef},
 };
 
