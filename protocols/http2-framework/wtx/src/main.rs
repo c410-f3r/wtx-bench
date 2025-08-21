@@ -1,5 +1,5 @@
-use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
-use wtx::http::server_framework::{Router, SerdeJson, ServerFrameworkBuilder, get, post};
+use wtx::http::server_framework::{Router, SerdeJsonOwned, ServerFrameworkBuilder, get, post};
+use wtx::rng::{ChaCha20, SeedableRng};
 
 #[tokio::main]
 async fn main() -> wtx::Result<()> {
@@ -8,7 +8,7 @@ async fn main() -> wtx::Result<()> {
         ("/json", post(json)),
     ))
     .unwrap();
-    ServerFrameworkBuilder::new(ChaCha20Rng::try_from_os_rng()?, router)
+    ServerFrameworkBuilder::new(ChaCha20::from_os()?, router)
         .without_aux()
         .tokio("0.0.0.0:9000", |_| {}, |_| Ok(()), |_| {})
         .await
@@ -25,9 +25,11 @@ struct ResponseElement {
     _sum: u128,
 }
 
-async fn json(SerdeJson(de): SerdeJson<RequestElement>) -> wtx::Result<SerdeJson<ResponseElement>> {
+async fn json(
+    SerdeJsonOwned(de): SerdeJsonOwned<RequestElement>,
+) -> wtx::Result<SerdeJsonOwned<ResponseElement>> {
     let _sum = de._n0.wrapping_add(de._n1).into();
-    Ok(SerdeJson(ResponseElement { _sum }))
+    Ok(SerdeJsonOwned(ResponseElement { _sum }))
 }
 
 async fn hello_world() -> &'static str {

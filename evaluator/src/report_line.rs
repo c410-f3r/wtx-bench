@@ -1,20 +1,20 @@
 use crate::{bench_stats::BenchStats, protocol::Protocol};
 use std::fmt::Write;
-use wtx::collection::ArrayString;
+use wtx::collection::ArrayStringU8;
 
 #[derive(Clone, Debug)]
 pub(crate) struct ReportLine {
     pub(crate) bench_stats: BenchStats,
-    pub(crate) environment: ArrayString<32>,
-    pub(crate) implementation: ArrayString<24>,
+    pub(crate) environment: ArrayStringU8<32>,
+    pub(crate) implementation: ArrayStringU8<24>,
     pub(crate) protocol: Protocol,
-    pub(crate) test: ArrayString<96>,
+    pub(crate) test: ArrayStringU8<96>,
     pub(crate) timestamp: u64,
 }
 
 impl ReportLine {
     pub(crate) fn implementation_generic(
-        environment: ArrayString<32>,
+        environment: ArrayStringU8<32>,
         protocol: Protocol,
         implementation: &str,
         timestamp: u64,
@@ -22,9 +22,9 @@ impl ReportLine {
         Self {
             bench_stats: BenchStats::default(),
             environment,
-            implementation: ArrayString::try_from(implementation).unwrap(),
+            implementation: ArrayStringU8::try_from(implementation).unwrap(),
             protocol,
-            test: ArrayString::new(),
+            test: ArrayStringU8::new(),
             timestamp,
         }
     }

@@ -31,7 +31,7 @@ use tokio::{
 };
 use wtx::{
     calendar::Instant,
-    collection::ArrayString,
+    collection::ArrayStringU8,
     http::{HttpClient, Method, ReqResBuffer, client_pool::ClientPoolBuilder},
     misc::{FnMutFut, UriRef},
 };
@@ -154,7 +154,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
 }
 
 async fn manage_protocol_dir(
-    environment: ArrayString<32>,
+    environment: ArrayStringU8<32>,
     protocol: Protocol,
     protocol_dir: &Path,
     rps: &mut Vec<ReportLine>,
@@ -205,7 +205,7 @@ async fn manage_protocol_dir(
 
 async fn manage_protocols_dir(
     dir: &Path,
-    environment: ArrayString<32>,
+    environment: ArrayStringU8<32>,
     rps: &mut Vec<ReportLine>,
     timestamp: u64,
 ) {
@@ -264,11 +264,11 @@ async fn podman_build(implementation: &str, protocol: Protocol) {
         Command::new("podman").args([
             "build",
             "--build-arg",
-            ArrayString::<64>::try_from(format_args!("IMPLEMENTATION={implementation}"))
+            ArrayStringU8::<64>::try_from(format_args!("IMPLEMENTATION={implementation}"))
                 .unwrap()
                 .as_str(),
             "-f",
-            ArrayString::<64>::try_from(format_args!(
+            ArrayStringU8::<64>::try_from(format_args!(
                 "../protocols/{protocol}/{implementation}/Dockerfile"
             ))
             .unwrap()

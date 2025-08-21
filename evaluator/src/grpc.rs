@@ -6,7 +6,7 @@ use crate::{data::string_bytes_8kib, manage_cases, report_line::ReportLine};
 use grpc_bindings::wtx::{GenericRequest, GenericResponse};
 use std::borrow::Cow;
 use wtx::{
-    data_transformation::dnsn::QuickProtobuf,
+    de::format::QuickProtobuf,
     grpc::GrpcClient,
     http::{ReqResBuffer, client_pool::ClientPoolBuilder},
     misc::UriRef,
