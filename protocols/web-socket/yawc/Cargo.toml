@@ -1,0 +1,13 @@
+[dependencies]
+futures = { default-features = false, version = "0.3" }
+http-body-util = { default-features = false, version = "0.1" }
+hyper = { default-features = false, features = ["client", "http1", "server"], version = "1.0" }
+hyper-util = { default-features = false, features = ["tokio"], version = "0.1" }
+tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
+yawc = { default-features = false, version = "0.2" }
+
+[package]
+edition = "2024"
+name = "yawc"
+publish = false
+version = "0.0.0"

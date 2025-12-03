@@ -1,4 +1,4 @@
-import type Csv from "./Csv";
+import type Csv from "./Csv.ts";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 

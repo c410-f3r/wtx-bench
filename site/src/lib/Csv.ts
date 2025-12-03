@@ -1,6 +1,6 @@
-import BenchStats from "./BenchStats";
-import { randomColor } from "./Utils";
-import type { firstPlacesChart, manyDatesChart } from "./types";
+import BenchStats from "./BenchStats.ts";
+import type { firstPlacesChart, manyDatesChart } from "./types.ts";
+import { randomColor } from "./Utils.ts";
 
 type Dates = Map<number, Protocols>;
 type Environments = Map<string, Dates>;
