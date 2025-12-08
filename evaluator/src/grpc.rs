@@ -51,7 +51,7 @@ async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
                     generic_request_field0: Cow::Borrowed(payload),
                 },
                 rrb,
-                &UriRef::new("http://127.0.0.1:9000/wtx.GenericService/generic_method"),
+                UriRef::new("http://127.0.0.1:9000/wtx.GenericService/generic_method"),
             )
             .await?;
         let generic_response: GenericResponse = grpc_client
