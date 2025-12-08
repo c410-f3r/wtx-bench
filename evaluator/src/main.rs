@@ -32,7 +32,7 @@ use tokio::{
 use wtx::{
     calendar::Instant,
     collection::ArrayStringU8,
-    http::{HttpClient, Method, ReqResBuffer, client_pool::ClientPoolBuilder},
+    http::{HttpClient, ReqBuilder, ReqResBuffer, client_pool::ClientPoolBuilder},
     misc::{FnMutFut, UriRef},
 };
 
@@ -111,9 +111,9 @@ fn manage_cases(
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
         let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
-        let mut client = &ClientPoolBuilder::tokio_rustls(1).build();
+        let client = &ClientPoolBuilder::tokio_rustls(1).build();
         let res = client
-            .send_recv_single(Method::Get, ReqResBuffer::empty(), &uri)
+            .send_req_recv_res(ReqResBuffer::empty(), ReqBuilder::get(uri))
             .await?;
         decode_report(&res.rrd.body)
     };

@@ -4,7 +4,7 @@ pb-rs = { default-features = false, version = "0.10" }
 [dependencies]
 quick-protobuf = { default-features = false, version = "0.8" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
-wtx = { default-features = false, features = ["getrandom", "grpc-server", "nightly", "optimization", "quick-protobuf", "tokio"], version = "0.36" }
+wtx = { default-features = false, features = ["getrandom", "grpc-server", "nightly", "optimization", "quick-protobuf", "tokio"], version = "0.40" }
 
 [package]
 edition = "2024"
