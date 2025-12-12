@@ -7,7 +7,7 @@ quick-protobuf = { default-features = false, version = "0.8" }
 serde = { default-features = false, features = ["derive"], version = "1.0" }
 serde_json = { default-features = false, features = ["alloc"], version = "1.0" }
 tokio = { default-features = false, features = ["fs", "io-std", "macros", "process", "rt-multi-thread"], version = "1.44" }
-wtx = { default-features = false, features = ["grpc-client", "http-client-pool", "optimization",  "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], version = "0.40" }
+wtx = { default-features = false, features = ["grpc-client", "http-client-pool", "optimization",  "quick-protobuf", "serde_json", "tokio", "tokio-rustls", "webpki-roots", "web-socket-handshake"], version = "0.41" }
 
 [features]
 all-protocols = ["web-socket"]
