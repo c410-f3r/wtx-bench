@@ -363,9 +363,9 @@ dependencies = [
 
 [[package]]
 name = "sha1"
-version = "0.11.0-rc.2"
+version = "0.11.0-rc.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5e046edf639aa2e7afb285589e5405de2ef7e61d4b0ac1e30256e3eab911af9"
+checksum = "aa1ae819b9870cadc959a052363de870944a1646932d274a4e270f64bf79e5ef"
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -660,9 +660,9 @@ checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
 name = "wtx"
-version = "0.40.0"
+version = "0.41.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75edb3e264dcd7c3f0e441dbcdc2c3cd1399cd741a8591498492642a9f6b62c1"
+checksum = "b8b1052b36a07f9b3b5fb41610ad619cbc52ab3d7367298f378e6fca4de96513"
 dependencies = [
  "base64",
  "foldhash",
@@ -681,6 +681,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "webpki-roots",
+ "wtx-macros",
 ]
 
 [[package]]
@@ -694,6 +695,17 @@ dependencies = [
  "serde_json",
  "tokio",
  "wtx",
+]
+
+[[package]]
+name = "wtx-macros"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e76dbaba8fae1e87552f568f1ada9833cd688ab38f2ec7668c2ab085174eefb4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
