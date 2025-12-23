@@ -1,5 +1,5 @@
 use ohkami::prelude::*;
-use ohkami::ws::{WebSocketContext, WebSocket, Message};
+use ohkami::ws::{Message, WebSocket, WebSocketContext};
 
 async fn echo_text(ctx: WebSocketContext<'_>) -> WebSocket {
     ctx.upgrade(|mut conn| async move {

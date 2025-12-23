@@ -11,6 +11,7 @@ async fn main() {
     let xorshift = Xorshift64::from(simple_seed());
     loop {
         let (stream, _) = listener.accept().await.unwrap();
+        wtx_bench_common::bench_stream(&stream).unwrap();
         let _jh = tokio::spawn(async move {
             let mut buffer = Vector::new();
             let mut ws = WebSocketAcceptor::default()

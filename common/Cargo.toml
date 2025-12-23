@@ -1,0 +1,8 @@
+[dependencies]
+tokio = { default-features = false, features = ["net"], version = "1.0" }
+
+[package]
+edition = "2024"
+name = "wtx-bench-common"
+publish = false
+version = "0.0.0"

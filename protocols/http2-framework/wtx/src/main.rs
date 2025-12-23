@@ -10,7 +10,7 @@ async fn main() -> wtx::Result<()> {
     .unwrap();
     ServerFrameworkBuilder::new(ChaCha20::from_os()?, router)
         .without_aux()
-        .tokio("0.0.0.0:9000", |_| {}, |_| Ok(()), |_| {})
+        .tokio("0.0.0.0:9000", |_| {}, |_| Ok(()), |_| Ok(()), |_| {})
         .await
 }
 

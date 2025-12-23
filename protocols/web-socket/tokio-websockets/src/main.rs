@@ -9,13 +9,14 @@ async fn main() {
         .await
         .unwrap();
     loop {
-        let (conn, _) = listener.accept().await.unwrap();
+        let (stream, _) = listener.accept().await.unwrap();
+        wtx_bench_common::bench_stream(&stream).unwrap();
         tokio::spawn(async move {
             let (_, mut server) = unsafe {
                 ServerBuilder::new()
                     .config(Config::default().frame_size(usize::MAX))
                     .limits(Limits::unlimited())
-                    .accept(conn)
+                    .accept(stream)
                     .await
                     .unwrap_unchecked()
             };

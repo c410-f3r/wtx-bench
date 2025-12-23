@@ -1,6 +1,7 @@
 [dependencies]
 ohkami = { default-features = false, features = ["rt_tokio", "ws"], version = "0.23" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
+wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3r/wtx-bench" }
 
 [package]
 edition = "2024"
