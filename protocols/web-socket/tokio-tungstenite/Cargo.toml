@@ -1,7 +1,7 @@
 [dependencies]
 futures-util = { default-features = false, version = "0.3" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
-tokio-tungstenite = { default-features = false, features = ["connect", "handshake"], version = "0.26" }
+tokio-tungstenite = { default-features = false, features = ["connect", "handshake"], version = "0.28" }
 wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3r/wtx-bench" }
 
 [package]

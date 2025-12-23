@@ -1,7 +1,7 @@
 [dependencies]
 futures-util = { default-features = false, features = ["sink"], version = "0.3" }
 tokio = { default-features = false, features = ["macros", "net", "rt-multi-thread"], version = "1.0" }
-tokio-websockets = { default-features = false, features = ["sha1_smol", "server", "simd"], version = "0.11" }
+tokio-websockets = { default-features = false, features = ["sha1_smol", "server"], version = "0.13" }
 wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3r/wtx-bench" }
 
 [package]
