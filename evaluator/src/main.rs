@@ -297,7 +297,6 @@ async fn podman_run() {
         "--network",
         "host",
         "-p",
-        "9000:9000",
         "bench",
     ]))
     .await

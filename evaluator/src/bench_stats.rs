@@ -14,7 +14,7 @@ impl BenchStats {
         } else {
             return Self::default();
         };
-        for value in data.iter().copied() {
+        for value in iter {
             max = max.max(value);
             min = min.min(value);
             sum += value;

@@ -54,14 +54,14 @@ pub(crate) async fn bench_all(
     Ok(())
 }
 
-async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
+async fn write((msgs, frames): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
     let uri = &UriRef::new(SOCKET_STR);
     let mut buffer = Vector::new();
     let stream = TcpStream::connect(SOCKET_ADDR).await?;
     wtx_bench_common::bench_stream(&stream)?;
     let mut ws = WebSocketConnector::default().connect(stream, uri).await?;
     for _ in 0..msgs {
-        let mut iter = payload.chunks(payload.len() / frames);
+        let mut iter = payload.chunks(payload.len().div_ceil(frames));
         let Some(first) = iter.next() else {
             panic!("No frames are being measured");
         };
