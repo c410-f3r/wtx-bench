@@ -7,6 +7,7 @@ use tokio::net::TcpListener;
 async fn main() {
     let listener = TcpListener::bind("0.0.0.0:9000").await.unwrap();
     while let Ok((stream, _)) = listener.accept().await {
+        wtx_bench_common::bench_stream(&stream).unwrap();
         tokio::spawn(async move {
             let mut ws_connection = accept_async(SocketFlowStream::Plain(stream)).await.unwrap();
             while let Some(result) = ws_connection.next().await {

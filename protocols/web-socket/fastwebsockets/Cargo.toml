@@ -3,6 +3,7 @@ fastwebsockets = { default-features = false, features = ["simd", "upgrade"], ver
 hyper = { default-features = false, version = "1.0" }
 hyper-util = { default-features = false, version = "0.1" }
 tokio = { default-features = false, features = ["macros", "net", "rt"], version = "1.0" }
+wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3r/wtx-bench" }
 
 [package]
 edition = "2024"

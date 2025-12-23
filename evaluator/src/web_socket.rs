@@ -57,9 +57,9 @@ pub(crate) async fn bench_all(
 async fn write((frames, msgs): (usize, usize), payload: &[u8]) -> wtx::Result<()> {
     let uri = &UriRef::new(SOCKET_STR);
     let mut buffer = Vector::new();
-    let mut ws = WebSocketConnector::default()
-        .connect(TcpStream::connect(SOCKET_ADDR).await?, uri)
-        .await?;
+    let stream = TcpStream::connect(SOCKET_ADDR).await?;
+    wtx_bench_common::bench_stream(&stream)?;
+    let mut ws = WebSocketConnector::default().connect(stream, uri).await?;
     for _ in 0..msgs {
         let mut iter = payload.chunks(payload.len() / frames);
         let Some(first) = iter.next() else {

@@ -1,4 +1,4 @@
-use fastwebsockets::{upgrade, FragmentCollector, OpCode, WebSocketError};
+use fastwebsockets::{FragmentCollector, OpCode, WebSocketError, upgrade};
 use hyper::{server::conn::http1, service::service_fn};
 use tokio::net::TcpListener;
 
@@ -7,6 +7,7 @@ async fn main() {
     let listener = TcpListener::bind("0.0.0.0:9000").await.unwrap();
     loop {
         let (stream, _) = listener.accept().await.unwrap();
+        wtx_bench_common::bench_stream(&stream).unwrap();
         tokio::spawn(async move {
             http1::Builder::new()
                 .serve_connection(
@@ -19,7 +20,7 @@ async fn main() {
                                 loop {
                                     let frame = ws.read_frame().await.unwrap();
                                     match frame.opcode {
-                                        OpCode::Binary |OpCode::Text => {
+                                        OpCode::Binary | OpCode::Text => {
                                             ws.write_frame(frame).await.unwrap();
                                         }
                                         OpCode::Close => break,

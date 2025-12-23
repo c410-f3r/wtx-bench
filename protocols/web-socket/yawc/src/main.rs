@@ -14,6 +14,7 @@ async fn main() -> yawc::Result<()> {
     let listener = TcpListener::bind("0.0.0.0:9000").await?;
     loop {
         let (stream, _) = listener.accept().await?;
+        wtx_bench_common::bench_stream(&stream).unwrap();
         tokio::spawn(async move {
             let io = hyper_util::rt::TokioIo::new(stream);
             let _rslt = http1::Builder::new()
@@ -53,4 +54,3 @@ async fn server_upgrade(mut req: Request<Incoming>) -> yawc::Result<Response<Emp
     });
     Ok(response)
 }
-
