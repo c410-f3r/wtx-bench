@@ -1,11 +1,11 @@
-use core::net::SocketAddr;
 use bytes::BytesMut;
+use core::net::SocketAddr;
 use futures_util::{SinkExt, StreamExt};
-use tokio::net::{TcpListener, TcpStream};
 use sockudo_ws::error::Result;
 use sockudo_ws::handshake::{build_response, generate_accept_key, parse_request};
 use sockudo_ws::protocol::Message;
 use sockudo_ws::{Config, WebSocketStream};
+use tokio::net::{TcpListener, TcpStream};
 
 #[tokio::main]
 async fn main() {
@@ -30,8 +30,7 @@ async fn handle_connection(stream: TcpStream) {
             Message::Binary(data) => {
                 ws.send(Message::Binary(data)).await.unwrap();
             }
-            Message::Ping(_) => {
-            }
+            Message::Ping(_) => {}
             Message::Pong(_) => {}
             Message::Close(_) => break,
         }
