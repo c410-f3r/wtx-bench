@@ -1,10 +1,10 @@
 use bytes::BytesMut;
 use core::net::SocketAddr;
-use futures_util::{SinkExt, StreamExt};
-use sockudo_ws::error::Result;
+use sockudo_ws::frame::encode_frame;
 use sockudo_ws::handshake::{build_response, generate_accept_key, parse_request};
-use sockudo_ws::protocol::Message;
-use sockudo_ws::{Config, WebSocketStream};
+use sockudo_ws::protocol::Protocol;
+use sockudo_ws::{Config, OpCode, Role};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 
 #[tokio::main]
@@ -19,39 +19,57 @@ async fn main() {
     }
 }
 
-async fn handle_connection(stream: TcpStream) {
-    let stream = do_handshake(stream).await.unwrap();
-    let mut ws = WebSocketStream::server(stream, Config::default());
-    while let Some(msg) = ws.next().await {
-        match msg.unwrap() {
-            Message::Text(text) => {
-                ws.send(Message::Text(text)).await.unwrap();
-            }
-            Message::Binary(data) => {
-                ws.send(Message::Binary(data)).await.unwrap();
-            }
-            Message::Ping(_) => {}
-            Message::Pong(_) => {}
-            Message::Close(_) => break,
-        }
-    }
-}
-
-async fn do_handshake(mut stream: TcpStream) -> Result<TcpStream> {
-    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+async fn handle_connection(mut stream: TcpStream) {
     let mut buf = BytesMut::with_capacity(4096);
     loop {
         let n = stream.read_buf(&mut buf).await.unwrap();
         if n == 0 {
-            return Err(sockudo_ws::Error::ConnectionClosed);
+            return;
         }
         if let Some((req, _)) = parse_request(&buf).unwrap() {
             let accept_key = generate_accept_key(req.key);
             let response = build_response(&accept_key, None, None);
             stream.write_all(&response).await.unwrap();
-            stream.flush().await.unwrap();
             break;
         }
     }
-    Ok(stream)
+    buf.clear();
+
+    let config = Config::default();
+    let mut protocol = Protocol::new(Role::Server, config.max_frame_size, config.max_message_size);
+    let mut write_buf = BytesMut::with_capacity(64 * 1024);
+    let mut messages = Vec::with_capacity(8);
+
+    loop {
+        let n = stream.read_buf(&mut buf).await.unwrap();
+        if n == 0 {
+            break;
+        }
+
+        if protocol.process_raw_into(&mut buf, &mut messages).is_err() {
+            break;
+        }
+
+        for msg in messages.drain(..) {
+            match msg {
+                sockudo_ws::RawMessage::Text(data) | sockudo_ws::RawMessage::Binary(data) => {
+                    encode_frame(&mut write_buf, OpCode::Binary, &data, true, None);
+                }
+                sockudo_ws::RawMessage::Ping(data) => {
+                    encode_frame(&mut write_buf, OpCode::Pong, &data, true, None);
+                }
+                sockudo_ws::RawMessage::Close(_) => {
+                    encode_frame(&mut write_buf, OpCode::Close, &[], true, None);
+                    stream.write_all(&write_buf).await.ok();
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        if !write_buf.is_empty() {
+            stream.write_all(&write_buf).await.unwrap();
+            write_buf.clear();
+        }
+    }
 }
