@@ -20,7 +20,7 @@ async fn main() {
 }
 
 async fn handle_connection(mut stream: TcpStream) {
-    let mut buf = BytesMut::with_capacity(4096);
+    let mut buf = BytesMut::new();
     loop {
         let n = stream.read_buf(&mut buf).await.unwrap();
         if n == 0 {
@@ -37,8 +37,8 @@ async fn handle_connection(mut stream: TcpStream) {
 
     let config = Config::default();
     let mut protocol = Protocol::new(Role::Server, config.max_frame_size, config.max_message_size);
-    let mut write_buf = BytesMut::with_capacity(64 * 1024);
-    let mut messages = Vec::with_capacity(8);
+    let mut write_buf = BytesMut::new();
+    let mut messages = Vec::new();
 
     loop {
         let n = stream.read_buf(&mut buf).await.unwrap();
