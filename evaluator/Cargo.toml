@@ -19,6 +19,6 @@ web-socket = []
 
 [package]
 edition = "2024"
-name = "wtx-bench"
+name = "wtx-evaluator"
 publish = false
 version = "0.0.0"

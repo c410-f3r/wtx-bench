@@ -169,6 +169,7 @@ async fn manage_protocol_dir(
             continue;
         }
         let bytes: &[u8] = match Language::infer_from_dir(&path).await {
+            Language::Cpp => include_bytes!("../assets/cpp.Dockerfile"),
             Language::Go => include_bytes!("../assets/go.Dockerfile"),
             Language::Javascript => include_bytes!("../assets/javascript.Dockerfile"),
             Language::Rust => include_bytes!("../assets/rust.Dockerfile"),

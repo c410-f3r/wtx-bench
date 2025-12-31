@@ -9,6 +9,6 @@ yawc = { default-features = false, version = "0.2" }
 
 [package]
 edition = "2024"
-name = "yawc"
+name = "yawc-bench"
 publish = false
 version = "0.0.0"

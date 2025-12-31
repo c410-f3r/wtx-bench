@@ -3,6 +3,7 @@ use tokio::fs::read_dir;
 
 #[derive(Debug)]
 pub(crate) enum Language {
+    Cpp,
     Go,
     Javascript,
     Rust,
@@ -16,6 +17,10 @@ impl Language {
             match file.file_name().to_str().unwrap() {
                 "Cargo.toml" => {
                     language = Some(Language::Rust);
+                    break;
+                }
+                "main.cpp" => {
+                    language = Some(Language::Cpp);
                     break;
                 }
                 "main.go" => {

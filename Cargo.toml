@@ -11,6 +11,9 @@ rpath = false
 strip = "symbols"
 
 [workspace]
+exclude = [
+    "protocols/web-socket/uWebSockets"
+]
 members = [
     "common",
     "evaluator",
