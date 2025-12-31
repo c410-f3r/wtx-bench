@@ -7,6 +7,6 @@ wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3
 
 [package]
 edition = "2024"
-name = "fastwebsockets"
+name = "fastwebsockets-bench"
 publish = false
 version = "0.0.0"
