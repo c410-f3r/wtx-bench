@@ -1,6 +1,6 @@
 [dependencies]
 bytes = { default-features = false, version = "1.0" }
-sockudo-ws = { default-features = false, features = ["tokio-runtime"], version = "1.0" }
+sockudo-ws = { default-features = false, features = ["tokio-runtime"], version = "=1.2" }
 tokio = { default-features = false, features = ["macros", "rt-multi-thread"], version = "1.0" }
 wtx-bench-common = { default-features = false, git = "https://github.com/c410-f3r/wtx-bench" }
 
