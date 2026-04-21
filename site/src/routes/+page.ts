@@ -1,9 +1,9 @@
+import { resolve } from "$app/paths";
 import Csv from "$lib/Csv";
 import type { PageLoad } from "./$types";
-import { base } from "$app/paths";
 
 export const load: PageLoad = async ({ fetch }) => {
-  const response = await fetch(`${base}/report.csv.gzip`);
+  const response = await fetch(resolve("/report.csv.gzip", {}));
   return {
     csv: new Csv(await decompress_gzip(response)),
   };

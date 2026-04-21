@@ -8,23 +8,15 @@
     "preview": "deno run --allow-all npm:vite preview"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^7.0.2",
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.49.1",
-    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@sveltejs/kit": "^2.57.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "bulma": "^1.0.4",
     "chart.js": "^4.5.1",
-    "cssnano": "^7.1.2",
-    "globals": "^16.5.0",
-    "postcss": "^8.5.6",
-    "postcss-prune-var": "^1.1.2",
-    "postcss-variable-compress": "^3.0.0",
     "sass": "^1.94.2",
-    "svelte": "^5.45.5",
-    "svelte-check": "^4.3.4",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.6"
+    "svelte": "^5.55.4",
+    "svelte-check": "^4.4.6",
+    "vite": "^8.0.9"
   },
   "type": "module"
 }

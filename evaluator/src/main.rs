@@ -113,7 +113,7 @@ async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
         let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
         let client = &ClientPoolBuilder::tokio_rustls(1).build();
         let res = client
-            .send_req_recv_res(ReqResBuffer::empty(), ReqBuilder::get(uri))
+            .send_req_recv_res(ReqBuilder::get(uri), ReqResBuffer::empty())
             .await?;
         decode_report(&res.rrd.body)
     };

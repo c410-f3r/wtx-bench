@@ -23,7 +23,7 @@ fn string_bytes(slice: &mut [u8]) {
     let mut rng = Xorshift64::from(simple_seed());
     for elem in slice {
         loop {
-            let byte = rng.u8();
+            let byte = rng.u8_4()[0];
             if byte.is_ascii_alphanumeric() {
                 *elem = byte;
                 break;

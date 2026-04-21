@@ -9,9 +9,7 @@
   $effect(() => {
     const datasets = () => [
       {
-        backgroundColor: Array.from(dataset.values()).map((elem) =>
-          elem[0]
-        ),
+        backgroundColor: Array.from(dataset.values()).map((elem) => elem[0]),
         borderWidth: 0,
         data: Array.from(dataset.values()).map((elem) => elem[1]),
       },

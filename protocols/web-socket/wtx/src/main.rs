@@ -19,7 +19,7 @@ async fn main() {
                 .accept(stream)
                 .await
                 .unwrap();
-            let (mut common, mut reader, mut writer) = ws.parts_mut();
+            let (mut common, mut reader, mut writer) = ws.split_mut();
             loop {
                 let mut frame = reader
                     .read_frame(&mut buffer, &mut common, WebSocketPayloadOrigin::Adaptive)

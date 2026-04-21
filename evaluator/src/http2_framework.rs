@@ -41,7 +41,7 @@ async fn hello_world(streams: usize) -> wtx::Result<()> {
     for _ in 0..streams {
         let client = &*CF;
         rrb = client
-            .send_req_recv_res(rrb, ReqBuilder::get(uri))
+            .send_req_recv_res(ReqBuilder::get(uri), rrb)
             .await
             .unwrap()
             .rrd;
@@ -73,7 +73,7 @@ async fn json(streams: usize) -> wtx::Result<()> {
         serde_json::to_writer(&mut rrb, &RequestElement { _n0: 4, _n1: 11 })?;
         let client = &*CF;
         rrb = client
-            .send_req_recv_res(rrb, ReqBuilder::post(uri))
+            .send_req_recv_res(ReqBuilder::post(uri), rrb)
             .await
             .unwrap()
             .rrd;
