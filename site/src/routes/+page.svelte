@@ -35,10 +35,15 @@
 
   let { data }: { data: PageData } = $props();
 
-  let environment = $state("");
+  const firstEnvironment = $derived(data.csv.results.keys().next().value!);
+  const firstParams = $derived(
+    environmentStateParams(data.csv, firstEnvironment),
+  );
+
+  let environment = $derived(firstEnvironment);
   let implementation = $state("");
-  let lastDays = $state(0);
-  let protocol = $state("");
+  let lastDays = $derived(firstParams.lastDays);
+  let protocol = $derived(firstParams.protocol);
   let test = $state("");
 
   let chartsData = $derived.by(() => {
@@ -71,17 +76,6 @@
     } else {
       return "Completion time in milliseconds";
     }
-  });
-
-  $effect(() => {
-    const firstEnvironment = data.csv.results.keys().next().value!;
-    const firstParams = environmentStateParams(data.csv, firstEnvironment);
-
-    environment = firstEnvironment;
-    implementation = "";
-    lastDays = firstParams.lastDays;
-    protocol = firstParams.protocol;
-    test = "";
   });
 </script>
 

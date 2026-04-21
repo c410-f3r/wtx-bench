@@ -3,10 +3,9 @@ import Csv from "$lib/Csv";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch }) => {
-  const response = await fetch(resolve("/report.csv.gzip", {}));
-  return {
-    csv: new Csv(await decompress_gzip(response)),
-  };
+  const response = await fetch(resolve(`/report.csv.gzip`));
+  const csv = new Csv(await decompress_gzip(response));
+  return { csv };
 };
 
 const decompress_gzip = async (response: Response) => {
