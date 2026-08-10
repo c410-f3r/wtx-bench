@@ -1,6 +1,6 @@
 use crate::{bench_stats::BenchStats, protocol::Protocol};
 use std::fmt::Write;
-use wtx::collection::ArrayStringU8;
+use wtx::collections::ArrayStringU8;
 
 #[derive(Clone, Debug)]
 pub(crate) struct ReportLine {

@@ -1,22 +1,25 @@
 use tokio::net::TcpListener;
 use wtx::{
-    collection::Vector,
-    rng::{Xorshift64, simple_seed},
+    collections::Vector,
+    rng::{ChaCha20, CryptoSeedableRng},
+    tls::{TlsAcceptor, TlsConfig},
     web_socket::{OpCode, WebSocketAcceptor, WebSocketPayloadOrigin},
 };
 
 #[tokio::main]
 async fn main() {
     let listener = TcpListener::bind("0.0.0.0:9000").await.unwrap();
-    let xorshift = Xorshift64::from(simple_seed());
     loop {
         let (stream, _) = listener.accept().await.unwrap();
         wtx_bench_common::bench_stream(&stream).unwrap();
         let _jh = tokio::spawn(async move {
             let mut buffer = Vector::new();
             let mut ws = WebSocketAcceptor::default()
-                .rng(xorshift)
-                .accept(stream)
+                .accept(TlsAcceptor::new(
+                    TlsConfig::plaintext(),
+                    ChaCha20::from_std_random().unwrap(),
+                    stream,
+                ))
                 .await
                 .unwrap();
             let (mut common, mut reader, mut writer) = ws.split_mut();

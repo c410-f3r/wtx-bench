@@ -5,11 +5,15 @@ use crate::{
     report_line::ReportLine,
 };
 use tokio::net::TcpStream;
-use wtx::web_socket::WebSocketPayloadOrigin;
 use wtx::{
-    collection::Vector,
-    misc::UriRef,
+    collections::Vector,
+    net::UriRef,
     web_socket::{Frame, OpCode, WebSocketConnector},
+};
+use wtx::{
+    rng::{ChaCha20, CryptoSeedableRng},
+    tls::{TlsConfig, TlsConnector},
+    web_socket::WebSocketPayloadOrigin,
 };
 
 pub(crate) async fn bench_all(
@@ -59,23 +63,30 @@ async fn write((msgs, frames): (usize, usize), payload: &[u8]) -> wtx::Result<()
     let mut buffer = Vector::new();
     let stream = TcpStream::connect(SOCKET_ADDR).await?;
     wtx_bench_common::bench_stream(&stream)?;
-    let mut ws = WebSocketConnector::default().connect(stream, uri).await?;
+    let mut ws = WebSocketConnector::default()
+        .connect(TlsConnector::new(
+            TlsConfig::plaintext(),
+            ChaCha20::from_std_random()?,
+            stream,
+            uri,
+        ))
+        .await?;
     for _ in 0..msgs {
         let mut iter = payload.chunks(payload.len().div_ceil(frames));
         let Some(first) = iter.next() else {
             panic!("No frames are being measured");
         };
         if let Some(last) = iter.next_back() {
-            ws.write_frame(&mut Frame::new_unfin(OpCode::Text, first.to_vec()))
+            ws.write_frame(&mut Frame::new_unfin(OpCode::Text, first.to_vec())?)
                 .await?;
             for elem in iter {
-                ws.write_frame(&mut Frame::new_unfin(OpCode::Continuation, elem.to_vec()))
+                ws.write_frame(&mut Frame::new_unfin(OpCode::Continuation, elem.to_vec())?)
                     .await?;
             }
-            ws.write_frame(&mut Frame::new_fin(OpCode::Continuation, last.to_vec()))
+            ws.write_frame(&mut Frame::new_fin(OpCode::Continuation, last.to_vec())?)
                 .await?;
         } else {
-            ws.write_frame(&mut Frame::new_fin(OpCode::Text, first.to_vec()))
+            ws.write_frame(&mut Frame::new_fin(OpCode::Text, first.to_vec())?)
                 .await?;
         }
         assert_eq!(
@@ -86,7 +97,7 @@ async fn write((msgs, frames): (usize, usize), payload: &[u8]) -> wtx::Result<()
             payload.len()
         );
     }
-    ws.write_frame(&mut Frame::new_fin(OpCode::Close, &mut []))
+    ws.write_frame(&mut Frame::new_fin(OpCode::Close, &mut [])?)
         .await?;
     Ok(())
 }

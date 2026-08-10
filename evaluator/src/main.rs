@@ -31,9 +31,13 @@ use tokio::{
 };
 use wtx::{
     calendar::Instant,
-    collection::ArrayStringU8,
-    http::{HttpClient, ReqBuilder, ReqResBuffer, client_pool::ClientPoolBuilder},
-    misc::{FnMutFut, UriRef},
+    collections::{ArrayStringU8, Vector},
+    executor::TokioExecutor,
+    futures::FnMutFut,
+    http::{HttpClient, ReqBuilder, http2_client_pool::Http2ClientPoolBuilder},
+    net::UriRef,
+    rng::{ChaCha20, CryptoSeedableRng},
+    tls::TlsConfig,
 };
 
 const _30_DAYS: Duration = Duration::from_secs(30 * 24 * 60 * 60);
@@ -111,11 +115,18 @@ fn manage_cases(
 async fn manage_prev_csv(curr_timestamp: u64, rps: &mut Vec<ReportLine>) {
     let csv_fun = || async move {
         let uri = UriRef::new("https://c410-f3r.github.io:443/wtx-bench/report.csv.gzip");
-        let client = &ClientPoolBuilder::tokio_rustls(1).build();
+        let client = &Http2ClientPoolBuilder::new(
+            TokioExecutor::default(),
+            1,
+            ChaCha20::from_std_random().unwrap(),
+            TlsConfig::from_ccadb().unwrap(),
+        )
+        .unwrap()
+        .build();
         let res = client
-            .send_req_recv_res(ReqBuilder::get(uri), ReqResBuffer::empty())
+            .send_req_recv_res(&mut Vector::new(), ReqBuilder::get(uri).into_request())
             .await?;
-        decode_report(&res.rrd.body)
+        decode_report(&res.msg_data.body)
     };
     let csv = match csv_fun().await {
         Err(err) => {
@@ -305,7 +316,7 @@ async fn podman_run() {
 }
 
 fn timestamp() -> u64 {
-    Instant::now_timestamp(0)
+    Instant::now_timestamp()
         .unwrap()
         .as_millis()
         .try_into()
