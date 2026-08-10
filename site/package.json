@@ -9,14 +9,14 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.57.1",
-    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@sveltejs/kit": "^2.70.2",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "bulma": "^1.0.4",
     "chart.js": "^4.5.1",
-    "sass": "^1.94.2",
-    "svelte": "^5.55.4",
-    "svelte-check": "^4.4.6",
-    "vite": "^8.0.9"
+    "sass": "^1.102.0",
+    "svelte": "^5.56.8",
+    "svelte-check": "^4.7.5",
+    "vite": "^8.2.1"
   },
   "type": "module"
 }

@@ -12,12 +12,12 @@ jobs:
       id-token: write
       pages: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions-rs/toolchain@v1
         with:
           override: true
           profile: minimal
-          toolchain: nightly-2026-03-08
+          toolchain: nightly-2026-06-27
       - uses: denoland/setup-deno@v2
       - uses: Swatinem/rust-cache@v2
       - run: |
@@ -27,7 +27,7 @@ jobs:
           deno install
           deno run build
       - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: 'site/build'
       - id: deployment

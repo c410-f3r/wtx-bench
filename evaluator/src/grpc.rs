@@ -7,9 +7,11 @@ use grpc_bindings::wtx::{GenericRequest, GenericResponse};
 use std::borrow::Cow;
 use wtx::{
     codec::format::QuickProtobuf,
+    executor::TokioExecutor,
     grpc::GrpcClient,
-    http::{ReqResBuffer, client_pool::ClientPoolBuilder},
-    misc::UriRef,
+    http::{MsgBuffer, http2_client_pool::Http2ClientPoolBuilder},
+    rng::{ChaCha20, CryptoSeedableRng},
+    tls::TlsConfig,
 };
 
 pub(crate) async fn bench_all(
@@ -40,25 +42,33 @@ pub(crate) async fn bench_all(
 }
 
 async fn write(requests: usize, payload: &[u8]) -> wtx::Result<()> {
-    let http_client = ClientPoolBuilder::tokio(1).build();
-    let mut rrb = ReqResBuffer::empty();
+    let http_client = Http2ClientPoolBuilder::new(
+        TokioExecutor::default(),
+        1,
+        ChaCha20::from_std_random()?,
+        TlsConfig::plaintext(),
+    )
+    .unwrap()
+    .build();
+    let mut buffer = MsgBuffer::from_uri(
+        String::from("http://127.0.0.1:9000/wtx.GenericService/generic_method").into(),
+    );
     for _ in 0..requests {
-        let http_client = &mut http_client.lock(&rrb.uri.to_ref()).await?.client;
+        let http_client = &mut http_client.lock(&buffer.uri.to_ref()).await?.client;
         let mut grpc_client = GrpcClient::new(http_client, QuickProtobuf);
         let res = grpc_client
             .send_unary_req(
                 GenericRequest {
                     generic_request_field0: Cow::Borrowed(payload),
                 },
-                rrb,
-                UriRef::new("http://127.0.0.1:9000/wtx.GenericService/generic_method"),
+                buffer,
             )
             .await?;
         let generic_response: GenericResponse = grpc_client
-            .des_from_res_bytes(&mut res.rrd.body.as_slice())
+            .des_from_res_bytes(&mut res.msg_data.body.as_slice())
             .unwrap();
         assert_eq!(generic_response.generic_response_field0, payload);
-        rrb = res.rrd;
+        buffer = res.msg_data;
     }
     Ok(())
 }
